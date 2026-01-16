@@ -149,7 +149,7 @@ class _EditSegmentScreenState extends State<EditSegmentScreen> {
                         labelText: 'Place',
                         border: OutlineInputBorder(),
                       ),
-                      value: _selectedPlace,
+                      initialValue: _selectedPlace,
                       items: snapshot.data!.map((place) {
                         return DropdownMenuItem<Place>(
                           value: place,
