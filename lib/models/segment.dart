@@ -9,7 +9,6 @@ class Segment {
   final DateTime startDate;
   final DateTime endDate;
   final Place place;
-  final String color;
   final bool flightBooked;
   final bool stayBooked;
   final bool isShengenRegion;
@@ -25,7 +24,6 @@ class Segment {
     required this.startDate,
     required this.endDate,
     required this.place,
-    required this.color,
     required this.flightBooked,
     required this.stayBooked,
     required this.isShengenRegion,
@@ -42,7 +40,6 @@ class Segment {
     DateTime? startDate,
     DateTime? endDate,
     Place? place,
-    String? color,
     bool? flightBooked,
     bool? stayBooked,
     bool? isShengenRegion,
@@ -58,7 +55,6 @@ class Segment {
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       place: place ?? this.place,
-      color: color ?? this.color,
       flightBooked: flightBooked ?? this.flightBooked,
       stayBooked: stayBooked ?? this.stayBooked,
       isShengenRegion: isShengenRegion ?? this.isShengenRegion,
@@ -77,7 +73,6 @@ class Segment {
       startDate: DateTime.parse(json['startDate']),
       endDate: DateTime.parse(json['endDate']),
       place: Place.fromJson(json['place'] as Map<String, dynamic>),
-      color: json['color'] as String,
       flightBooked: json['flightBooked'] as bool? ?? false,
       stayBooked: json['stayBooked'] as bool? ?? false,
       isShengenRegion: json['isShengenRegion'] as bool? ?? false,
@@ -96,7 +91,6 @@ class Segment {
       'startDate': startDate.toIso8601String(),
       'endDate': endDate.toIso8601String(),
       'place': place.toJson(),
-      'color': color,
       'flightBooked': flightBooked,
       'stayBooked': stayBooked,
       'isShengenRegion': isShengenRegion,

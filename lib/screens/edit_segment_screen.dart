@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/segment.dart';
+import '../services/api_service.dart';
+import '../models/place.dart';
 
 class EditSegmentScreen extends StatefulWidget {
   final Segment segment;
@@ -14,21 +16,26 @@ class EditSegmentScreen extends StatefulWidget {
 class _EditSegmentScreenState extends State<EditSegmentScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
-  late TextEditingController _placeController;
-  late DateTime _startDate;
-  late DateTime _endDate;
+  late TextEditingController _descriptionController;
+  DateTime? _startDate;
+  DateTime? _endDate;
+  Place? _selectedPlace;
+  late Future<List<Place>> _placesFuture;
+  final ApiService _apiService = ApiService();
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.segment.name);
-    _placeController = TextEditingController(text: widget.segment.place.name);
+    _descriptionController = TextEditingController(text: widget.segment.description);
     _startDate = widget.segment.startDate;
     _endDate = widget.segment.endDate;
+    _selectedPlace = widget.segment.place;
+    _placesFuture = _apiService.getPlaces();
   }
 
   Future<void> _selectDate(BuildContext context, {required bool isStartDate}) async {
-    final initialDate = isStartDate ? _startDate : _endDate;
+    final initialDate = isStartDate ? (_startDate ?? DateTime.now()) : (_endDate ?? _startDate ?? DateTime.now());
     final newDate = await showDatePicker(
       context: context,
       initialDate: initialDate,
@@ -44,6 +51,26 @@ class _EditSegmentScreenState extends State<EditSegmentScreen> {
           _endDate = newDate;
         }
       });
+    }
+  }
+
+  void _updateSegment() async {
+    if (_formKey.currentState!.validate() &&
+        _startDate != null &&
+        _endDate != null &&
+        _selectedPlace != null) {
+      final updatedSegment = widget.segment.copyWith(
+        name: _nameController.text,
+        description: _descriptionController.text,
+        startDate: _startDate!,
+        endDate: _endDate!,
+        place: _selectedPlace!,
+        isShengenRegion: _selectedPlace!.isShengenRegion,
+      );
+      await _apiService.updateSegment(updatedSegment);
+      if (mounted) {
+        Navigator.pop(context, true);
+      }
     }
   }
 
@@ -74,6 +101,15 @@ class _EditSegmentScreenState extends State<EditSegmentScreen> {
                 },
               ),
               const SizedBox(height: 16.0),
+              TextFormField(
+                controller: _descriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
+              ),
+              const SizedBox(height: 16.0),
               Row(
                 children: [
                   Expanded(
@@ -84,7 +120,7 @@ class _EditSegmentScreenState extends State<EditSegmentScreen> {
                           labelText: 'Start Date',
                           border: OutlineInputBorder(),
                         ),
-                        child: Text(DateFormat.yMMMd().format(_startDate)),
+                        child: Text(_startDate != null ? DateFormat.yMMMd().format(_startDate!) : 'Select Date'),
                       ),
                     ),
                   ),
@@ -97,41 +133,53 @@ class _EditSegmentScreenState extends State<EditSegmentScreen> {
                           labelText: 'End Date',
                           border: OutlineInputBorder(),
                         ),
-                        child: Text(DateFormat.yMMMd().format(_endDate)),
+                        child: Text(_endDate != null ? DateFormat.yMMMd().format(_endDate!) : 'Select Date'),
                       ),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 16.0),
-              TextFormField(
-                controller: _placeController,
-                decoration: const InputDecoration(
-                  labelText: 'Place',
-                  border: OutlineInputBorder(),
-                ),
-                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a place';
+              FutureBuilder<List<Place>>(
+                future: _placesFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return DropdownButtonFormField<Place>(
+                      decoration: const InputDecoration(
+                        labelText: 'Place',
+                        border: OutlineInputBorder(),
+                      ),
+                      value: _selectedPlace,
+                      items: snapshot.data!.map((place) {
+                        return DropdownMenuItem<Place>(
+                          value: place,
+                          child: Text(place.name),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedPlace = value;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Please select a place';
+                        }
+                        return null;
+                      },
+                    );
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else {
+                    return const CircularProgressIndicator();
                   }
-                  return null;
                 },
               ),
               const SizedBox(height: 32.0),
               Center(
                 child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      final updatedSegment = widget.segment.copyWith(
-                        name: _nameController.text,
-                        startDate: _startDate,
-                        endDate: _endDate,
-                        place: widget.segment.place.copyWith(name: _placeController.text),
-                      );
-                      Navigator.pop(context, updatedSegment);
-                    }
-                  },
-                  child: const Text('Save Changes'),
+                  onPressed: _updateSegment,
+                  child: const Text('Update Segment'),
                 ),
               ),
             ],
@@ -144,7 +192,7 @@ class _EditSegmentScreenState extends State<EditSegmentScreen> {
   @override
   void dispose() {
     _nameController.dispose();
-    _placeController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 }

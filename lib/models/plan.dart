@@ -5,15 +5,19 @@ class Plan {
   final int tripId;
   final String name;
   final String? description;
+  final DateTime startDate;
+  final DateTime endDate;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-  List<Segment>? segments;
+  final List<Segment>? segments; // Present if `withDetails=true`
 
   Plan({
     required this.id,
     required this.tripId,
     required this.name,
     this.description,
+    required this.startDate,
+    required this.endDate,
     this.createdAt,
     this.updatedAt,
     this.segments,
@@ -24,6 +28,8 @@ class Plan {
     int? tripId,
     String? name,
     String? description,
+    DateTime? startDate,
+    DateTime? endDate,
     DateTime? createdAt,
     DateTime? updatedAt,
     List<Segment>? segments,
@@ -33,6 +39,8 @@ class Plan {
       tripId: tripId ?? this.tripId,
       name: name ?? this.name,
       description: description ?? this.description,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       segments: segments ?? this.segments,
@@ -45,10 +53,14 @@ class Plan {
       tripId: json['tripId'] as int,
       name: json['name'] as String,
       description: json['description'] as String?,
+      startDate: DateTime.parse(json['startDate']),
+      endDate: DateTime.parse(json['endDate']),
       createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
       updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt']) : null,
-      segments: json['segments'] != null 
-          ? (json['segments'] as List).map((e) => Segment.fromJson(e as Map<String, dynamic>)).toList() 
+      segments: json['segments'] != null
+          ? (json['segments'] as List)
+              .map((e) => Segment.fromJson(e as Map<String, dynamic>))
+              .toList()
           : null,
     );
   }
@@ -59,6 +71,8 @@ class Plan {
       'tripId': tripId,
       'name': name,
       'description': description,
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate.toIso8601String(),
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
       'segments': segments?.map((e) => e.toJson()).toList(),

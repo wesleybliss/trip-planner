@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/trip.dart';
+import '../services/api_service.dart';
 
 class EditTripScreen extends StatefulWidget {
   final Trip trip;
@@ -7,19 +8,42 @@ class EditTripScreen extends StatefulWidget {
   const EditTripScreen({super.key, required this.trip});
 
   @override
-  State<EditTripScreen> createState() => _EditTripScreenState();
+  EditTripScreenState createState() => EditTripScreenState();
 }
 
-class _EditTripScreenState extends State<EditTripScreen> {
+class EditTripScreenState extends State<EditTripScreen> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
-  late TextEditingController _descriptionController;
+  late String _name;
+  late String _description;
+  final ApiService _apiService = ApiService();
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.trip.name);
-    _descriptionController = TextEditingController(text: widget.trip.description);
+    _name = widget.trip.name;
+    _description = widget.trip.description ?? '';
+  }
+
+  void _submit() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      try {
+        final updatedTrip = widget.trip.copyWith(
+          name: _name,
+          description: _description,
+        );
+        await _apiService.updateTrip(updatedTrip);
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to update trip: $e')),
+          );
+        }
+      }
+    }
   }
 
   @override
@@ -33,56 +57,28 @@ class _EditTripScreenState extends State<EditTripScreen> {
         child: Form(
           key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Trip Name',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a trip name';
-                  }
-                  return null;
-                },
+                initialValue: _name,
+                decoration: const InputDecoration(labelText: 'Trip Name'),
+                validator: (value) =>
+                    value!.isEmpty ? 'Please enter a trip name' : null,
+                onSaved: (value) => _name = value!,
               ),
-              const SizedBox(height: 16.0),
               TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 3,
+                initialValue: _description,
+                decoration: const InputDecoration(labelText: 'Description'),
+                onSaved: (value) => _description = value!,
               ),
-              const SizedBox(height: 32.0),
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      final updatedTrip = widget.trip.copyWith(
-                        name: _nameController.text,
-                        description: _descriptionController.text,
-                      );
-                      Navigator.pop(context, updatedTrip);
-                    }
-                  },
-                  child: const Text('Save Changes'),
-                ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _submit,
+                child: const Text('Update Trip'),
               ),
             ],
           ),
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
   }
 }

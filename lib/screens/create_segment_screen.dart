@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/segment.dart';
+import '../services/api_service.dart';
 import '../models/place.dart';
 
 class CreateSegmentScreen extends StatefulWidget {
@@ -16,9 +17,18 @@ class CreateSegmentScreen extends StatefulWidget {
 class _CreateSegmentScreenState extends State<CreateSegmentScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _placeController = TextEditingController();
+  final _descriptionController = TextEditingController();
   DateTime? _startDate;
   DateTime? _endDate;
+  Place? _selectedPlace;
+  late Future<List<Place>> _placesFuture;
+  final ApiService _apiService = ApiService();
+
+  @override
+  void initState() {
+    super.initState();
+    _placesFuture = _apiService.getPlaces();
+  }
 
   Future<void> _selectDate(BuildContext context, {required bool isStartDate}) async {
     final initialDate = isStartDate ? (_startDate ?? DateTime.now()) : (_endDate ?? _startDate ?? DateTime.now());
@@ -37,6 +47,31 @@ class _CreateSegmentScreenState extends State<CreateSegmentScreen> {
           _endDate = newDate;
         }
       });
+    }
+  }
+
+  void _createSegment() async {
+    if (_formKey.currentState!.validate() &&
+        _startDate != null &&
+        _endDate != null &&
+        _selectedPlace != null) {
+      final newSegment = Segment(
+        id: 0,
+        tripId: widget.tripId,
+        planId: widget.planId,
+        name: _nameController.text,
+        description: _descriptionController.text,
+        startDate: _startDate!,
+        endDate: _endDate!,
+        place: _selectedPlace!,
+        flightBooked: false,
+        stayBooked: false,
+        isShengenRegion: _selectedPlace!.isShengenRegion,
+      );
+      await _apiService.createSegment(newSegment);
+      if (mounted) {
+        Navigator.pop(context, true);
+      }
     }
   }
 
@@ -65,6 +100,15 @@ class _CreateSegmentScreenState extends State<CreateSegmentScreen> {
                   }
                   return null;
                 },
+              ),
+              const SizedBox(height: 16.0),
+              TextFormField(
+                controller: _descriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
               ),
               const SizedBox(height: 16.0),
               Row(
@@ -97,40 +141,45 @@ class _CreateSegmentScreenState extends State<CreateSegmentScreen> {
                 ],
               ),
               const SizedBox(height: 16.0),
-              TextFormField(
-                controller: _placeController,
-                decoration: const InputDecoration(
-                  labelText: 'Place',
-                  border: OutlineInputBorder(),
-                ),
-                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a place';
+              FutureBuilder<List<Place>>(
+                future: _placesFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return DropdownButtonFormField<Place>(
+                      decoration: const InputDecoration(
+                        labelText: 'Place',
+                        border: OutlineInputBorder(),
+                      ),
+                      initialValue: _selectedPlace,
+                      items: snapshot.data!.map((place) {
+                        return DropdownMenuItem<Place>(
+                          value: place,
+                          child: Text(place.name),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedPlace = value;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Please select a place';
+                        }
+                        return null;
+                      },
+                    );
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else {
+                    return const CircularProgressIndicator();
                   }
-                  return null;
                 },
               ),
               const SizedBox(height: 32.0),
               Center(
                 child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate() && _startDate != null && _endDate != null) {
-                      final newSegment = Segment(
-                        id: 0, // Id will be assigned by the backend
-                        tripId: widget.tripId,
-                        planId: widget.planId,
-                        name: _nameController.text,
-                        startDate: _startDate!,
-                        endDate: _endDate!,
-                        place: Place(id: 0, name: _placeController.text, type: 'City'), // Id and type are hardcoded for now
-                        color: '#FF0000', // Hardcoded for now
-                        flightBooked: false, // Hardcoded for now
-                        stayBooked: false, // Hardcoded for now
-                        isShengenRegion: false, // Hardcoded for now
-                      );
-                      Navigator.pop(context, newSegment);
-                    }
-                  },
+                  onPressed: _createSegment,
                   child: const Text('Create Segment'),
                 ),
               ),
@@ -144,7 +193,7 @@ class _CreateSegmentScreenState extends State<CreateSegmentScreen> {
   @override
   void dispose() {
     _nameController.dispose();
-    _placeController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 }
