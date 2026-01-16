@@ -1,6 +1,6 @@
 {
-    "name": "myapp",
-    "short_name": "myapp",
+    "name": "trip_planner",
+    "short_name": "trip_planner",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

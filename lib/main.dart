@@ -8,7 +8,7 @@ void main() {
   runApp(
     ChangeNotifierProvider(
       create: (context) => ThemeProvider(),
-      child: const MyApp(),
+      child: const TripPlannerApp(),
     ),
   );
 }
@@ -24,8 +24,8 @@ class ThemeProvider with ChangeNotifier {
   }
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class TripPlannerApp extends StatelessWidget {
+  const TripPlannerApp({super.key});
 
   @override
   Widget build(BuildContext context) {

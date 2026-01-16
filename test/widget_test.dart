@@ -17,7 +17,7 @@ void main() {
     await tester.pumpWidget(
       ChangeNotifierProvider(
         create: (context) => ThemeProvider(),
-        child: const MyApp(),
+        child: const TripPlannerApp(),
       ),
     );
 

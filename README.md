@@ -1,6 +1,6 @@
-# myapp
+# Trip Planner
 
-A new Flutter project.
+A comprehensive trip planning application designed to help travelers organize itineraries, visualize schedules, and track important details like Schengen zone days.
 
 ## Getting Started
 
