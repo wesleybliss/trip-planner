@@ -15,15 +15,29 @@ A comprehensive trip planning application designed to help travelers organize it
     *   Created a mock `ApiService` to simulate fetching trip data.
     *   Set up the basic app structure with a `HomeScreen` and `TripDetailScreen`.
     *   Implemented a basic theme with light and dark modes using `provider`.
-*   **Plan Details:**
-    *   Created a `PlanDetailScreen` to display the segments of a plan.
-    *   Added navigation from the `TripDetailScreen` to the `PlanDetailScreen`.
+*   **Trip Management (CRUD):**
+    *   Implemented the ability to create, read, update, and delete trips.
+    *   Created `create_trip_screen.dart` and `edit_trip_screen.dart`.
+    *   The `HomeScreen` displays a list of trips, and users can tap on a trip to view its details.
+*   **Plan Management (CRUD):**
+    *   Implemented the ability to create, read, update, and delete plans within a trip.
+    *   Created `create_plan_screen.dart` and `edit_plan_screen.dart`.
+    *   The `TripDetailScreen` displays a list of plans for a trip.
+*   **Segment Management (CRUD):**
+    *   Implemented the ability to create, read, update, and delete segments within a plan.
+    *   Created `create_segment_screen.dart` and `edit_segment_screen.dart`.
+    *   The `PlanDetailScreen` displays a list of segments for a plan.
 
 ### Current Plan
 
-*   Enhance the visual design of the trip and plan detail screens.
-*   Implement the ability to create, edit, and delete trips and plans.
-*   Add a calendar view to visualize the trip schedule.
+*   **UI/UX Enhancements:**
+    *   Refine the visual design of all screens for a more polished and intuitive user experience.
+    *   Add a calendar view to visualize the trip schedule.
+    *   Implement a more user-friendly way to select places (e.g., using a map or a search API).
+*   **Backend Integration:**
+    *   Replace the mock `ApiService` with a real backend implementation (e.g., using Firebase or a custom REST API).
+*   **Schengen Zone Tracking:**
+    *   Implement the logic to calculate and display the number of days spent in the Schengen zone.
 
 ## Project Setup Checklist
 
@@ -33,3 +47,6 @@ A comprehensive trip planning application designed to help travelers organize it
 - [x] Create mock API service
 - [x] Update `main.dart`
 - [x] Create project setup checklist file
+- [x] Implement Trip CRUD
+- [x] Implement Plan CRUD
+- [x] Implement Segment CRUD

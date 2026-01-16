@@ -7,7 +7,7 @@ class Plan {
   final String? description;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-  final List<Segment>? segments;
+  List<Segment>? segments;
 
   Plan({
     required this.id,
@@ -18,6 +18,26 @@ class Plan {
     this.updatedAt,
     this.segments,
   });
+
+  Plan copyWith({
+    int? id,
+    int? tripId,
+    String? name,
+    String? description,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    List<Segment>? segments,
+  }) {
+    return Plan(
+      id: id ?? this.id,
+      tripId: tripId ?? this.tripId,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      segments: segments ?? this.segments,
+    );
+  }
 
   factory Plan.fromJson(Map<String, dynamic> json) {
     return Plan(

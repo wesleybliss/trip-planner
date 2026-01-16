@@ -1,3 +1,5 @@
+import 'place.dart';
+
 class Segment {
   final int id;
   final int tripId;
@@ -6,8 +8,7 @@ class Segment {
   final String? description;
   final DateTime startDate;
   final DateTime endDate;
-  final double? coordsLat;
-  final double? coordsLng;
+  final Place place;
   final String color;
   final bool flightBooked;
   final bool stayBooked;
@@ -23,8 +24,7 @@ class Segment {
     this.description,
     required this.startDate,
     required this.endDate,
-    this.coordsLat,
-    this.coordsLng,
+    required this.place,
     required this.color,
     required this.flightBooked,
     required this.stayBooked,
@@ -32,6 +32,40 @@ class Segment {
     this.createdAt,
     this.updatedAt,
   });
+
+  Segment copyWith({
+    int? id,
+    int? tripId,
+    int? planId,
+    String? name,
+    String? description,
+    DateTime? startDate,
+    DateTime? endDate,
+    Place? place,
+    String? color,
+    bool? flightBooked,
+    bool? stayBooked,
+    bool? isShengenRegion,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return Segment(
+      id: id ?? this.id,
+      tripId: tripId ?? this.tripId,
+      planId: planId ?? this.planId,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      place: place ?? this.place,
+      color: color ?? this.color,
+      flightBooked: flightBooked ?? this.flightBooked,
+      stayBooked: stayBooked ?? this.stayBooked,
+      isShengenRegion: isShengenRegion ?? this.isShengenRegion,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 
   factory Segment.fromJson(Map<String, dynamic> json) {
     return Segment(
@@ -42,8 +76,7 @@ class Segment {
       description: json['description'] as String?,
       startDate: DateTime.parse(json['startDate']),
       endDate: DateTime.parse(json['endDate']),
-      coordsLat: (json['coordsLat'] as num?)?.toDouble(),
-      coordsLng: (json['coordsLng'] as num?)?.toDouble(),
+      place: Place.fromJson(json['place'] as Map<String, dynamic>),
       color: json['color'] as String,
       flightBooked: json['flightBooked'] as bool? ?? false,
       stayBooked: json['stayBooked'] as bool? ?? false,
@@ -62,8 +95,7 @@ class Segment {
       'description': description,
       'startDate': startDate.toIso8601String(),
       'endDate': endDate.toIso8601String(),
-      'coordsLat': coordsLat,
-      'coordsLng': coordsLng,
+      'place': place.toJson(),
       'color': color,
       'flightBooked': flightBooked,
       'stayBooked': stayBooked,

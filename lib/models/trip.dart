@@ -27,6 +27,34 @@ class Trip {
     this.plans,
   });
 
+  Trip copyWith({
+    int? id,
+    int? userId,
+    String? name,
+    String? description,
+    String? coverImageUrl,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    DateTime? startDate,
+    DateTime? endDate,
+    int? segmentCount,
+    List<Plan>? plans,
+  }) {
+    return Trip(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      coverImageUrl: coverImageUrl ?? this.coverImageUrl,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      segmentCount: segmentCount ?? this.segmentCount,
+      plans: plans ?? this.plans,
+    );
+  }
+
   factory Trip.fromJson(Map<String, dynamic> json) {
     return Trip(
       id: json['id'] as int,
