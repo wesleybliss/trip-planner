@@ -5,7 +5,7 @@
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "A comprehensive trip planning application designed to help travelers organize itineraries, visualize schedules, and track important details like Schengen zone days.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

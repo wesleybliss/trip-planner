@@ -1,11 +1,26 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'services/api_service.dart';
 import 'screens/auth/signin_screen.dart';
 import 'screens/trip_list_screen.dart';
 import 'theme/theme_provider.dart';
+import 'package:window_manager/window_manager.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+    await windowManager.ensureInitialized();
+    WindowOptions windowOptions = const WindowOptions(
+      size: Size(600, 800),
+      minimumSize: Size(300, 400),
+    );
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.show();
+    });
+  }
+  
   runApp(
     ChangeNotifierProvider(
       create: (context) => ThemeProvider(),
