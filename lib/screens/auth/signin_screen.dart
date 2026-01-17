@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:trip_planner/utils/logger.dart';
+import 'package:trip_planner/utils/utils.dart';
 import '../../services/api_service.dart';
 import '../trip_list_screen.dart';
 import 'signup_screen.dart';
@@ -11,22 +14,34 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
+  final log = Logger("SignInScreen");
   final ApiService _apiService = ApiService();
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
-
+  
+  String getValue(String? value, String debugKey) {
+    if (value == null || value.isEmpty) {
+      return dotenv.env[debugKey] ?? '';
+    }
+    
+    return value;
+  }
+  
+  String get emailValue => getValue(_emailController.text, 'DEBUG_QUICK_SIGNIN_EMAIL');
+  String get passwordValue => getValue(_passwordController.text, 'DEBUG_QUICK_SIGNIN_PASSWORD');
+  
   void _signIn() async {
+    log.d("_signIn(): email=$emailValue, password=${Utils.mask(passwordValue)}");
+    
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
+      
       try {
-        await _apiService.signIn(
-          _emailController.text,
-          _passwordController.text,
-        );
+        await _apiService.signIn(emailValue, passwordValue);
         if (mounted) {
           Navigator.pushReplacement(
             context,
@@ -34,6 +49,8 @@ class _SignInScreenState extends State<SignInScreen> {
           );
         }
       } catch (e) {
+        log.e("_signIn():", e);
+        
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(e.toString())),
@@ -68,7 +85,8 @@ class _SignInScreenState extends State<SignInScreen> {
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  final debugValue = dotenv.env['DEBUG_QUICK_SIGNIN_EMAIL'];
+                  if ((value == null || value.isEmpty) && debugValue?.isEmpty == true) {
                     return 'Please enter your email';
                   }
                   return null;
@@ -83,19 +101,21 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
                 obscureText: true,
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  final debugValue = dotenv.env['DEBUG_QUICK_SIGNIN_PASSWORD'];
+                  if ((value == null || value.isEmpty) && debugValue?.isEmpty == true) {
                     return 'Please enter your password';
                   }
                   return null;
                 },
               ),
-              const SizedBox(height: 16.0),
+              const SizedBox(height: 26.0),
               _isLoading
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
                       onPressed: _signIn,
                       child: const Text('Sign In'),
                     ),
+              const SizedBox(height: 16.0),
               TextButton(
                 onPressed: () {
                   Navigator.push(

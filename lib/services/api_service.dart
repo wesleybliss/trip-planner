@@ -1,6 +1,7 @@
 import 'dart:developer' as developer;
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:spot_di/spot_di.dart';
 import '../models/trip.dart';
 import '../models/plan.dart';
 import '../models/segment.dart';
@@ -9,7 +10,7 @@ import '../models/user.dart';
 import '../models/auth_response.dart';
 
 class ApiService {
-  final Dio _dio = Dio();
+  final Dio _dio = spot<Dio>();
   final String _baseUrl = 'https://trip-planner-basic.vercel.app/api';
 
   ApiService() {
