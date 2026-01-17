@@ -12,5 +12,7 @@ abstract class IDioClient {
   abstract final Dio dio;
 
   Future<Response> get(String path);
-  
+  Future<Response> post(String path, {dynamic data});
+  Future<Response> put(String path, {dynamic data});
+  Future<Response> delete(String path, {dynamic data});
 }

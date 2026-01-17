@@ -17,14 +17,23 @@ class DioClient implements IDioClient {
     connectTimeout: const Duration(seconds: 15),
     receiveTimeout: const Duration(seconds: 15),
   )) {
-    dio.interceptors.add(LogInterceptor(responseBody: true)); // Optional logging
+    dio.interceptors.add(LogInterceptor(responseBody: true));
+    dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        final prefs = await SharedPreferences.getInstance();
+        final token = prefs.getString('token');
+        if (token != null) {
+          options.headers['Authorization'] = 'Bearer $token';
+        }
+        return handler.next(options);
+      },
+    ));
   }
   
   @override
   Future<Response> get(String path) async {
     log.d('GET $path');
     
-    // Check if caching is disabled for debugging
     final prefs = await SharedPreferences.getInstance();
     final disableCache = prefs.getBool(Constants.keys.settings.disableCache) ?? false;
     
@@ -41,20 +50,29 @@ class DioClient implements IDioClient {
         },
       );
       
-      // Add timestamp query parameter to bust cache
       final separator = path.contains('?') ? '&' : '?';
       finalPath = '$path${separator}_ts=${DateTime.now().millisecondsSinceEpoch}';
     }
     
     final res = await dio.get(finalPath, options: options);
-    
-    if (res.statusCode != 200) {
-      log.e('GET $path failed with status code ${res.statusCode}');
-      throw DioException(requestOptions: res.requestOptions, error: 'GET $path failed with status code ${res.statusCode}');
-    }
-    
     return res;
   }
 
-// Add more methods for POST, PUT, DELETE as needed
+  @override
+  Future<Response> post(String path, {dynamic data}) async {
+    log.d('POST $path');
+    return await dio.post(path, data: data);
+  }
+
+  @override
+  Future<Response> put(String path, {dynamic data}) async {
+    log.d('PUT $path');
+    return await dio.put(path, data: data);
+  }
+
+  @override
+  Future<Response> delete(String path, {dynamic data}) async {
+    log.d('DELETE $path');
+    return await dio.delete(path, data: data);
+  }
 }

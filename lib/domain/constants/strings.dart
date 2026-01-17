@@ -7,7 +7,7 @@ class ConstantsStrings {
     const bool isProduction = bool.fromEnvironment('dart.vm.product');
 
     if (isProduction || !useLocalApiServer) {
-      return 'https://todo.vercel.app/api';
+      return 'https://trip-planner-basic.vercel.app/api';
     } else {
       return 'http://localhost:3002/api';
     }
