@@ -1,5 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'home/home_screen.dart';
 import 'signin_screen.dart';
 
@@ -18,16 +18,17 @@ class SplashScreenState extends State<SplashScreen> {
   }
 
   void _checkAuth() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-    if (token != null) {
-      if (mounted) {
+    // Give Firebase a moment to restore auth state if needed, 
+    // or just check currentUser if it's already available after main's init.
+    // Waiting for the first event on authStateChanges is safer.
+    final user = await FirebaseAuth.instance.authStateChanges().first;
+    
+    if (mounted) {
+      if (user != null) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const HomeScreen()),
         );
-      }
-    } else {
-      if (mounted) {
+      } else {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const SignInScreen()),
         );

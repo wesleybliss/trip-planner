@@ -1,6 +1,5 @@
 import 'dart:developer' as developer;
-import 'package:dio/dio.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:spot_di/spot_di.dart';
 import '../domain/io/net/i_dio_client.dart';
 import '../models/trip.dart';
@@ -8,67 +7,54 @@ import '../models/plan.dart';
 import '../models/segment.dart';
 import '../models/place.dart';
 import '../models/user.dart';
-import '../models/auth_response.dart';
 
 class ApiService {
   final IDioClient _dio = spot<IDioClient>();
+  final fb_auth.FirebaseAuth _auth = fb_auth.FirebaseAuth.instance;
 
   Future<void> signUp(String name, String email, String password) async {
     try {
-      final response = await _dio.post(
-        '/auth/signup',
-        data: {'name': name, 'email': email, 'password': password},
+      final userCredential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
       );
-      final authResponse = AuthResponse.fromJson(response.data);
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', authResponse.token);
+      
+      // Update display name
+      if (userCredential.user != null) {
+        await userCredential.user!.updateDisplayName(name);
+      }
     } catch (e) {
-      throw Exception('Failed to sign up');
+      throw Exception('Failed to sign up: $e');
     }
   }
 
   Future<void> signIn(String email, String password) async {
     try {
-      // 1. Get CSRF Token
-      final csrfRes = await _dio.get('/auth/csrf');
-      final csrfToken = csrfRes.data['csrfToken'];
-
-      // 2. Sign In
-      final response = await _dio.post(
-        '/auth/callback/credentials',
-        data: {
-          'csrfToken': csrfToken,
-          'email': email,
-          'password': password,
-          'json': 'true',
-        },
-        options: Options(contentType: Headers.formUrlEncodedContentType),
+      await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
       );
-
-      // 3. Check for errors in the redirect URL provided by NextAuth
-      final url = response.data['url'] as String?;
-      if (url != null && url.contains('error=')) {
-        throw Exception('Sign in failed');
-      }
-
-      // 4. Set dummy token to satisfy app logic (session is in cookies)
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', 'session-active');
     } catch (e) {
       throw Exception('Failed to sign in: $e');
     }
   }
 
   Future<void> signOut() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token');
+    await _auth.signOut();
   }
 
   Future<User?> getAuthenticatedUser() async {
     try {
+      // If we are not signed in to Firebase, return null
+      if (_auth.currentUser == null) return null;
+
+      // Call the API's /auth/me endpoint. It should now expect the Firebase ID token
+      // which is automatically attached by the DioClient interceptor.
       final response = await _dio.get('/auth/me');
       return User.fromJson(response.data);
     } catch (e) {
+      // If API call fails, it might mean the backend user doesn't exist yet or token is invalid.
+      // But we still return null to indicate "not successfully authenticated with backend".
       return null;
     }
   }

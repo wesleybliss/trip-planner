@@ -4,11 +4,11 @@ import 'package:dio/dio.dart';
 import 'package:spot_di/spot_di.dart';
 
 abstract class SpotModule {
-  static void registerDependencies({required String cookiePath}) {
+  static void registerDependencies() {
     Spot.init((factory, single) {
       // Networking
       single<Dio, Dio>((get) => Dio());
-      single<IDioClient, DioClient>((get) => DioClient(cookiePath: cookiePath));
+      single<IDioClient, DioClient>((get) => DioClient());
 
       // DAOs
       // single<AUserDao, AUserDao>((get) => UserDao());

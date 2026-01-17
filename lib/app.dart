@@ -1,7 +1,7 @@
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:provider/provider.dart' as Provider;
+import 'package:provider/provider.dart' as provider;
 import 'package:trip_planner/config/application.dart';
 import 'package:trip_planner/config/routing/routes.dart';
 import 'package:trip_planner/screens/error/error_screen.dart';
@@ -46,7 +46,7 @@ class TripPlannerApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ApiService apiService = ApiService();
 
-    return Provider.Consumer<ThemeProvider>(
+    return provider.Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: true,
