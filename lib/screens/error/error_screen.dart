@@ -48,24 +48,27 @@ class _ErrorScreenState extends State<ErrorScreen> {
     final errorMessage = localizations?.unexpectedErrorOccurred ?? 'An unexpected error occurred';
     final retryText = localizations?.retry.toUpperCase() ?? 'RETRY';
 
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              errorMessage,
-              textAlign: TextAlign.center,
-            ),
-            if (widget.onRetry != null) ...[
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: widget.onRetry,
-                child: Text(retryText),
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                errorMessage,
+                textAlign: TextAlign.center,
               ),
+              if (widget.onRetry != null) ...[
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: widget.onRetry,
+                  child: Text(retryText),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

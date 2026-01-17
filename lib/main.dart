@@ -10,12 +10,12 @@ import 'package:window_manager/window_manager.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize the main application & it's dependencies
-  await Application.initialize();
-
   // Initialize Firebase, crash logging, etc.
   await initializeFirebase();
   
+  // Initialize the main application & it's dependencies
+  await Application.initialize();
+
   if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
     await windowManager.ensureInitialized();
     WindowOptions windowOptions = const WindowOptions(
