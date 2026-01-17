@@ -7,6 +7,7 @@ import 'package:trip_planner/utils/logger.dart';
 import 'package:fluro/fluro.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart';
 
 class Application {
   static bool isInitialized = false;
@@ -37,12 +38,14 @@ class Application {
     }
     // await Settings.initialize();
 
+    final appDocDir = await getApplicationDocumentsDirectory();
+
     // Let image caching be more verbose (useful when debugging network images)
     // CachedNetworkImage.logLevel = CacheManagerLogLevel.debug;
 
     // Register service locator dependencies
     Spot.logging = false;
-    SpotModule.registerDependencies();
+    SpotModule.registerDependencies(cookiePath: appDocDir.path);
 
     // Initialize database
     // database = AppDatabase();

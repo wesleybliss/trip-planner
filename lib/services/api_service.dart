@@ -1,4 +1,5 @@
 import 'dart:developer' as developer;
+import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spot_di/spot_di.dart';
 import '../domain/io/net/i_dio_client.dart';
@@ -28,15 +29,33 @@ class ApiService {
 
   Future<void> signIn(String email, String password) async {
     try {
+      // 1. Get CSRF Token
+      final csrfRes = await _dio.get('/auth/csrf');
+      final csrfToken = csrfRes.data['csrfToken'];
+
+      // 2. Sign In
       final response = await _dio.post(
-        '/auth/signin',
-        data: {'email': email, 'password': password},
+        '/auth/callback/credentials',
+        data: {
+          'csrfToken': csrfToken,
+          'email': email,
+          'password': password,
+          'json': 'true',
+        },
+        options: Options(contentType: Headers.formUrlEncodedContentType),
       );
-      final authResponse = AuthResponse.fromJson(response.data);
+
+      // 3. Check for errors in the redirect URL provided by NextAuth
+      final url = response.data['url'] as String?;
+      if (url != null && url.contains('error=')) {
+        throw Exception('Sign in failed');
+      }
+
+      // 4. Set dummy token to satisfy app logic (session is in cookies)
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', authResponse.token);
+      await prefs.setString('token', 'session-active');
     } catch (e) {
-      throw Exception('Failed to sign in');
+      throw Exception('Failed to sign in: $e');
     }
   }
 
@@ -57,8 +76,21 @@ class ApiService {
   Future<List<Trip>> getTrips({bool withCounts = false}) async {
     try {
       final response = await _dio.get('/trips');
-      final trips =
-          (response.data as List).map((trip) => Trip.fromJson(trip)).toList();
+      
+      final dynamic data = response.data;
+      List<dynamic> list;
+      
+      if (data is List) {
+        list = data;
+      } else if (data is Map && data.containsKey('trips')) {
+        list = data['trips'];
+      } else if (data is Map && data.containsKey('data')) {
+        list = data['data'];
+      } else {
+        throw Exception('Unexpected response format');
+      }
+
+      final trips = list.map((trip) => Trip.fromJson(trip)).toList();
       developer.log('Fetched trips: $trips', name: 'api_service');
       return trips;
     } catch (e, s) {
@@ -103,8 +135,22 @@ class ApiService {
 
   Future<List<Plan>> getPlans(int tripId) async {
     try {
-      final response = await _dio.get('/trips/$tripId/plans');
-      return (response.data as List).map((plan) => Plan.fromJson(plan)).toList();
+      final response = await _dio.get('/trips/$tripId?withDetails=true');
+      
+      final dynamic data = response.data;
+      List<dynamic> list;
+      
+      if (data is List) {
+        list = data;
+      } else if (data is Map && data.containsKey('plans')) {
+        list = data['plans'];
+      } else if (data is Map && data.containsKey('data')) {
+        list = data['data'];
+      } else {
+        throw Exception('Unexpected response format');
+      }
+
+      return list.map((plan) => Plan.fromJson(plan)).toList();
     } catch (e) {
       throw Exception('Failed to load plans');
     }
@@ -179,7 +225,21 @@ class ApiService {
   Future<List<Place>> getPlaces() async {
     try {
       final response = await _dio.get('/places');
-      return (response.data as List).map((place) => Place.fromJson(place)).toList();
+      
+      final dynamic data = response.data;
+      List<dynamic> list;
+      
+      if (data is List) {
+        list = data;
+      } else if (data is Map && data.containsKey('places')) {
+        list = data['places'];
+      } else if (data is Map && data.containsKey('data')) {
+        list = data['data'];
+      } else {
+        throw Exception('Unexpected response format');
+      }
+
+      return list.map((place) => Place.fromJson(place)).toList();
     } catch (e) {
       throw Exception('Failed to load placeholder');
     }

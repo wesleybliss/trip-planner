@@ -11,8 +11,8 @@ abstract class IDioClient {
   @protected
   abstract final Dio dio;
 
-  Future<Response> get(String path);
-  Future<Response> post(String path, {dynamic data});
-  Future<Response> put(String path, {dynamic data});
-  Future<Response> delete(String path, {dynamic data});
+  Future<Response> get(String path, {Options? options});
+  Future<Response> post(String path, {dynamic data, Options? options});
+  Future<Response> put(String path, {dynamic data, Options? options});
+  Future<Response> delete(String path, {dynamic data, Options? options});
 }
