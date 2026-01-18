@@ -7,7 +7,9 @@ class ThemeProvider with ChangeNotifier {
   ThemeMode get themeMode => _themeMode;
 
   void toggleTheme() {
-    _themeMode = _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+    _themeMode = _themeMode == ThemeMode.light
+        ? ThemeMode.dark
+        : ThemeMode.light;
     notifyListeners();
   }
 
@@ -22,8 +24,6 @@ class ThemeProvider with ChangeNotifier {
     brightness: Brightness.dark,
     primarySwatch: Colors.blue,
     visualDensity: VisualDensity.adaptivePlatformDensity,
-    textTheme: GoogleFonts.latoTextTheme(
-      ThemeData.dark().textTheme,
-    ),
+    textTheme: GoogleFonts.latoTextTheme(ThemeData.dark().textTheme),
   );
 }

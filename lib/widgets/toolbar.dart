@@ -9,19 +9,17 @@ class Toolbar extends StatelessWidget implements PreferredSizeWidget {
   const Toolbar({
     super.key,
     required this.title,
-    this.height = 56.0, // Default height for AppBar                                                                                                                                          
+    this.height = 56.0, // Default height for AppBar
     this.showActions = true,
     this.allowBackNavigation = false,
   });
 
   @override
   Size get preferredSize => Size.fromHeight(height);
-  
+
   // TODO
   @override
   Widget build(BuildContext context) {
-    return Center(
-        child: Text("")
-    );
+    return Center(child: Text(""));
   }
 }

@@ -1,6 +1,7 @@
 import 'package:trip_planner/utils/logger.dart';
 import 'package:trip_planner/utils/network_utils.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart' if (dart.library.js) 'firebase_stub.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart'
+    if (dart.library.js) 'firebase_stub.dart';
 
 final _log = Logger('CrashlyticsUtils');
 
@@ -13,12 +14,16 @@ Future<void> recordNonConnectivityError(
 }) async {
   // Don't report connectivity errors to Crashlytics
   if (isConnectivityError(error)) {
-    _log.d('Skipping Crashlytics report for connectivity error: ${toStringSafe(error, maxLength: 200)}');
+    _log.d(
+      'Skipping Crashlytics report for connectivity error: ${toStringSafe(error, maxLength: 200)}',
+    );
     return;
   }
 
-  _log.d('Recording error to Crashlytics: ${toStringSafe(error, maxLength: 200)}');
-  
+  _log.d(
+    'Recording error to Crashlytics: ${toStringSafe(error, maxLength: 200)}',
+  );
+
   await FirebaseCrashlytics.instance.recordError(
     error,
     stackTrace,

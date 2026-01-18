@@ -16,9 +16,7 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Create New Trip'),
-      ),
+      appBar: AppBar(title: const Text('Create New Trip')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

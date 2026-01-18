@@ -36,7 +36,9 @@ class _ErrorScreenState extends State<ErrorScreen> {
       fatal: false,
     );
 
-    log.d('sendCrashReport(): Error recorded successfully (if not connectivity)');
+    log.d(
+      'sendCrashReport(): Error recorded successfully (if not connectivity)',
+    );
     log.d('sendCrashReport(): Restart app to upload to Firebase');
   }
 
@@ -45,7 +47,9 @@ class _ErrorScreenState extends State<ErrorScreen> {
     // Try to get localization safely, fall back to English if not available
     // This allows ErrorScreen to work as a global error widget
     final localizations = AppLocalizations.of(context);
-    final errorMessage = localizations?.unexpectedErrorOccurred ?? 'An unexpected error occurred';
+    final errorMessage =
+        localizations?.unexpectedErrorOccurred ??
+        'An unexpected error occurred';
     final retryText = localizations?.retry.toUpperCase() ?? 'RETRY';
 
     return Directionality(
@@ -56,10 +60,7 @@ class _ErrorScreenState extends State<ErrorScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                errorMessage,
-                textAlign: TextAlign.center,
-              ),
+              Text(errorMessage, textAlign: TextAlign.center),
               if (widget.onRetry != null) ...[
                 const SizedBox(height: 24),
                 ElevatedButton(

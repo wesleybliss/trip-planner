@@ -39,9 +39,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
   void _editPlan(Plan plan) async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => EditPlanScreen(plan: plan),
-      ),
+      MaterialPageRoute(builder: (context) => EditPlanScreen(plan: plan)),
     );
     if (result == true) {
       setState(() {
@@ -56,7 +54,8 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
       builder: (context) => AlertDialog(
         title: const Text('Delete Plan?'),
         content: const Text(
-            'Are you sure you want to delete this plan? This action cannot be undone.'),
+          'Are you sure you want to delete this plan? This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -83,7 +82,8 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => CreateSegmentScreen(tripId: tripId, planId: planId),
+        builder: (context) =>
+            CreateSegmentScreen(tripId: tripId, planId: planId),
       ),
     );
     if (result == true) {
@@ -113,7 +113,8 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
       builder: (context) => AlertDialog(
         title: const Text('Delete Segment?'),
         content: const Text(
-            'Are you sure you want to delete this segment? This action cannot be undone.'),
+          'Are you sure you want to delete this segment? This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -207,7 +208,9 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 8.0),
+                      horizontal: 16.0,
+                      vertical: 8.0,
+                    ),
                     child: Text(
                       'Segments',
                       style: Theme.of(context).textTheme.headlineSmall,
@@ -237,7 +240,11 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
             padding: const EdgeInsets.symmetric(vertical: 40.0),
             child: Column(
               children: [
-                const Icon(Icons.luggage_outlined, size: 60, color: Colors.grey),
+                const Icon(
+                  Icons.luggage_outlined,
+                  size: 60,
+                  color: Colors.grey,
+                ),
                 const SizedBox(height: 16),
                 const Text(
                   'No segments yet!',
@@ -256,81 +263,78 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
     }
 
     return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          final segment = segments[index];
-          final duration = segment.endDate.difference(segment.startDate).inDays;
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            elevation: 4,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        segment.name,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleLarge
-                            ?.copyWith(fontWeight: FontWeight.bold),
+      delegate: SliverChildBuilderDelegate((context, index) {
+        final segment = segments[index];
+        final duration = segment.endDate.difference(segment.startDate).inDays;
+        return Card(
+          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      segment.name,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
-                      PopupMenuButton<String>(
-                        onSelected: (value) {
-                          if (value == 'edit') {
-                            _editSegment(segment);
-                          } else if (value == 'delete') {
-                            _deleteSegment(segment);
-                          }
-                        },
-                        itemBuilder: (BuildContext context) =>
-                            <PopupMenuEntry<String>>[
-                          const PopupMenuItem<String>(
-                            value: 'edit',
-                            child: Text('Edit'),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: 'delete',
-                            child: Text('Delete'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8.0),
-                  Row(
-                    children: [
-                      const Icon(Icons.calendar_today, size: 16.0),
-                      const SizedBox(width: 8.0),
-                      Text(
-                        '${DateFormat.yMMMd().format(segment.startDate)} - ${DateFormat.yMMMd().format(segment.endDate)} ($duration days)',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8.0),
-                  Row(
-                    children: [
-                      const Icon(Icons.place, size: 16.0),
-                      const SizedBox(width: 8.0),
-                      Text(
-                        segment.place.name,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                    PopupMenuButton<String>(
+                      onSelected: (value) {
+                        if (value == 'edit') {
+                          _editSegment(segment);
+                        } else if (value == 'delete') {
+                          _deleteSegment(segment);
+                        }
+                      },
+                      itemBuilder: (BuildContext context) =>
+                          <PopupMenuEntry<String>>[
+                            const PopupMenuItem<String>(
+                              value: 'edit',
+                              child: Text('Edit'),
+                            ),
+                            const PopupMenuItem<String>(
+                              value: 'delete',
+                              child: Text('Delete'),
+                            ),
+                          ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8.0),
+                Row(
+                  children: [
+                    const Icon(Icons.calendar_today, size: 16.0),
+                    const SizedBox(width: 8.0),
+                    Text(
+                      '${DateFormat.yMMMd().format(segment.startDate)} - ${DateFormat.yMMMd().format(segment.endDate)} ($duration days)',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8.0),
+                Row(
+                  children: [
+                    const Icon(Icons.place, size: 16.0),
+                    const SizedBox(width: 8.0),
+                    Text(
+                      segment.place.name,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+              ],
             ),
-          );
-        },
-        childCount: segments.length,
-      ),
+          ),
+        );
+      }, childCount: segments.length),
     );
   }
 }
@@ -356,7 +360,9 @@ class SchengenDaysCard extends StatelessWidget {
           children: [
             Text(
               'Schengen Zone Stay',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16.0),
             Row(
@@ -369,7 +375,10 @@ class SchengenDaysCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 16.0),
-                Text('$schengenDays / 90 Days', style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  '$schengenDays / 90 Days',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
               ],
             ),
             const SizedBox(height: 8.0),

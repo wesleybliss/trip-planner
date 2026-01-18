@@ -35,10 +35,10 @@ class ApiService {
   Future<List<Trip>> getTrips({bool withCounts = false}) async {
     try {
       final response = await _dio.get('/trips');
-      
+
       final dynamic data = response.data;
       List<dynamic> list;
-      
+
       if (data is List) {
         list = data;
       } else if (data is Map && data.containsKey('trips')) {
@@ -53,7 +53,12 @@ class ApiService {
       developer.log('Fetched trips: $trips', name: 'api_service');
       return trips;
     } catch (e, s) {
-      developer.log('Failed to load trips', name: 'api_service', error: e, stackTrace: s);
+      developer.log(
+        'Failed to load trips',
+        name: 'api_service',
+        error: e,
+        stackTrace: s,
+      );
       throw Exception('Failed to load trips');
     }
   }
@@ -95,10 +100,10 @@ class ApiService {
   Future<List<Plan>> getPlans(int tripId) async {
     try {
       final response = await _dio.get('/trips/$tripId?withDetails=true');
-      
+
       final dynamic data = response.data;
       List<dynamic> list;
-      
+
       if (data is List) {
         list = data;
       } else if (data is Map && data.containsKey('plans')) {
@@ -117,7 +122,9 @@ class ApiService {
 
   Future<Plan> getPlan(int planId, {bool withSegments = false}) async {
     try {
-      final response = await _dio.get('/plans/$planId?withSegments=$withSegments');
+      final response = await _dio.get(
+        '/plans/$planId?withSegments=$withSegments',
+      );
       return Plan.fromJson(response.data);
     } catch (e) {
       throw Exception('Failed to load plan');
@@ -126,8 +133,10 @@ class ApiService {
 
   Future<Plan> createPlan(Plan plan) async {
     try {
-      final response = await _dio
-          .post('/trips/${plan.tripId}/plans', data: plan.toJson());
+      final response = await _dio.post(
+        '/trips/${plan.tripId}/plans',
+        data: plan.toJson(),
+      );
       return Plan.fromJson(response.data);
     } catch (e) {
       throw Exception('Failed to create plan');
@@ -136,8 +145,10 @@ class ApiService {
 
   Future<void> updatePlan(Plan plan) async {
     try {
-      await _dio.put('/trips/${plan.tripId}/plans/${plan.id}',
-          data: plan.toJson());
+      await _dio.put(
+        '/trips/${plan.tripId}/plans/${plan.id}',
+        data: plan.toJson(),
+      );
     } catch (e) {
       throw Exception('Failed to update plan');
     }
@@ -154,8 +165,9 @@ class ApiService {
   Future<Segment> createSegment(Segment segment) async {
     try {
       final response = await _dio.post(
-          '/trips/${segment.tripId}/plans/${segment.planId}/segments',
-          data: segment.toJson());
+        '/trips/${segment.tripId}/plans/${segment.planId}/segments',
+        data: segment.toJson(),
+      );
       return Segment.fromJson(response.data);
     } catch (e) {
       throw Exception('Failed to create segment');
@@ -165,8 +177,9 @@ class ApiService {
   Future<void> updateSegment(Segment segment) async {
     try {
       await _dio.put(
-          '/trips/${segment.tripId}/plans/${segment.planId}/segments/${segment.id}',
-          data: segment.toJson());
+        '/trips/${segment.tripId}/plans/${segment.planId}/segments/${segment.id}',
+        data: segment.toJson(),
+      );
     } catch (e) {
       throw Exception('Failed to update segment');
     }
@@ -175,7 +188,8 @@ class ApiService {
   Future<void> deleteSegment(Segment segment) async {
     try {
       await _dio.delete(
-          '/trips/${segment.tripId}/plans/${segment.planId}/segments/${segment.id}');
+        '/trips/${segment.tripId}/plans/${segment.planId}/segments/${segment.id}',
+      );
     } catch (e) {
       throw Exception('Failed to delete segment');
     }
@@ -184,10 +198,10 @@ class ApiService {
   Future<List<Place>> getPlaces() async {
     try {
       final response = await _dio.get('/places');
-      
+
       final dynamic data = response.data;
       List<dynamic> list;
-      
+
       if (data is List) {
         list = data;
       } else if (data is Map && data.containsKey('places')) {
@@ -215,7 +229,10 @@ class ApiService {
 
   Future<Place> updatePlace(Place place) async {
     try {
-      final response = await _dio.put('/places/${place.id}', data: place.toJson());
+      final response = await _dio.put(
+        '/places/${place.id}',
+        data: place.toJson(),
+      );
       return Place.fromJson(response.data);
     } catch (e) {
       throw Exception('Failed to update place');

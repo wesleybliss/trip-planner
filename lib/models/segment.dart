@@ -76,8 +76,12 @@ class Segment {
       flightBooked: json['flightBooked'] as bool? ?? false,
       stayBooked: json['stayBooked'] as bool? ?? false,
       isShengenRegion: json['isShengenRegion'] as bool? ?? false,
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
-      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt']) : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'])
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'])
+          : null,
     );
   }
 

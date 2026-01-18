@@ -13,10 +13,10 @@ void main() async {
 
   // Initialize Firebase, crash logging, etc. and get AuthService
   final authService = await initializeFirebase();
-  
+
   // Initialize the main application & it's dependencies
   await Application.initialize();
-  
+
   // Register AuthService after Spot is initialized
   SpotModule.registerAuthService(authService);
 
@@ -30,7 +30,7 @@ void main() async {
       await windowManager.show();
     });
   }
-  
+
   runApp(
     ChangeNotifierProvider(
       create: (context) => ThemeProvider(),

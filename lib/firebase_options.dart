@@ -61,7 +61,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '976595109556',
     projectId: 'trip-planner-7fe7c',
     storageBucket: 'trip-planner-7fe7c.firebasestorage.app',
-    iosClientId: '976595109556-r0tm2gg9f4intjoujevidsu4mpl0rd2i.apps.googleusercontent.com',
+    iosClientId:
+        '976595109556-r0tm2gg9f4intjoujevidsu4mpl0rd2i.apps.googleusercontent.com',
     iosBundleId: 'com.gammagamma.tripplanner.tripPlanner',
   );
 
@@ -71,7 +72,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '976595109556',
     projectId: 'trip-planner-7fe7c',
     storageBucket: 'trip-planner-7fe7c.firebasestorage.app',
-    iosClientId: '976595109556-r0tm2gg9f4intjoujevidsu4mpl0rd2i.apps.googleusercontent.com',
+    iosClientId:
+        '976595109556-r0tm2gg9f4intjoujevidsu4mpl0rd2i.apps.googleusercontent.com',
     iosBundleId: 'com.gammagamma.tripplanner.tripPlanner',
   );
 
@@ -94,5 +96,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'trip-planner-7fe7c.firebasestorage.app',
     measurementId: 'G-5JM4Q9QZHT',
   );
-
 }

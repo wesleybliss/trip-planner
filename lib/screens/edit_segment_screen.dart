@@ -27,15 +27,22 @@ class _EditSegmentScreenState extends State<EditSegmentScreen> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.segment.name);
-    _descriptionController = TextEditingController(text: widget.segment.description);
+    _descriptionController = TextEditingController(
+      text: widget.segment.description,
+    );
     _startDate = widget.segment.startDate;
     _endDate = widget.segment.endDate;
     _selectedPlace = widget.segment.place;
     _placesFuture = _apiService.getPlaces();
   }
 
-  Future<void> _selectDate(BuildContext context, {required bool isStartDate}) async {
-    final initialDate = isStartDate ? (_startDate ?? DateTime.now()) : (_endDate ?? _startDate ?? DateTime.now());
+  Future<void> _selectDate(
+    BuildContext context, {
+    required bool isStartDate,
+  }) async {
+    final initialDate = isStartDate
+        ? (_startDate ?? DateTime.now())
+        : (_endDate ?? _startDate ?? DateTime.now());
     final newDate = await showDatePicker(
       context: context,
       initialDate: initialDate,
@@ -77,9 +84,7 @@ class _EditSegmentScreenState extends State<EditSegmentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Segment'),
-      ),
+      appBar: AppBar(title: const Text('Edit Segment')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -120,7 +125,11 @@ class _EditSegmentScreenState extends State<EditSegmentScreen> {
                           labelText: 'Start Date',
                           border: OutlineInputBorder(),
                         ),
-                        child: Text(_startDate != null ? DateFormat.yMMMd().format(_startDate!) : 'Select Date'),
+                        child: Text(
+                          _startDate != null
+                              ? DateFormat.yMMMd().format(_startDate!)
+                              : 'Select Date',
+                        ),
                       ),
                     ),
                   ),
@@ -133,7 +142,11 @@ class _EditSegmentScreenState extends State<EditSegmentScreen> {
                           labelText: 'End Date',
                           border: OutlineInputBorder(),
                         ),
-                        child: Text(_endDate != null ? DateFormat.yMMMd().format(_endDate!) : 'Select Date'),
+                        child: Text(
+                          _endDate != null
+                              ? DateFormat.yMMMd().format(_endDate!)
+                              : 'Select Date',
+                        ),
                       ),
                     ),
                   ),

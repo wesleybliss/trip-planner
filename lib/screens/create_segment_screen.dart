@@ -8,7 +8,11 @@ class CreateSegmentScreen extends StatefulWidget {
   final int tripId;
   final int planId;
 
-  const CreateSegmentScreen({super.key, required this.tripId, required this.planId});
+  const CreateSegmentScreen({
+    super.key,
+    required this.tripId,
+    required this.planId,
+  });
 
   @override
   State<CreateSegmentScreen> createState() => _CreateSegmentScreenState();
@@ -30,8 +34,13 @@ class _CreateSegmentScreenState extends State<CreateSegmentScreen> {
     _placesFuture = _apiService.getPlaces();
   }
 
-  Future<void> _selectDate(BuildContext context, {required bool isStartDate}) async {
-    final initialDate = isStartDate ? (_startDate ?? DateTime.now()) : (_endDate ?? _startDate ?? DateTime.now());
+  Future<void> _selectDate(
+    BuildContext context, {
+    required bool isStartDate,
+  }) async {
+    final initialDate = isStartDate
+        ? (_startDate ?? DateTime.now())
+        : (_endDate ?? _startDate ?? DateTime.now());
     final newDate = await showDatePicker(
       context: context,
       initialDate: initialDate,
@@ -78,9 +87,7 @@ class _CreateSegmentScreenState extends State<CreateSegmentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Create New Segment'),
-      ),
+      appBar: AppBar(title: const Text('Create New Segment')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -121,7 +128,11 @@ class _CreateSegmentScreenState extends State<CreateSegmentScreen> {
                           labelText: 'Start Date',
                           border: OutlineInputBorder(),
                         ),
-                        child: Text(_startDate != null ? DateFormat.yMMMd().format(_startDate!) : 'Select Date'),
+                        child: Text(
+                          _startDate != null
+                              ? DateFormat.yMMMd().format(_startDate!)
+                              : 'Select Date',
+                        ),
                       ),
                     ),
                   ),
@@ -134,7 +145,11 @@ class _CreateSegmentScreenState extends State<CreateSegmentScreen> {
                           labelText: 'End Date',
                           border: OutlineInputBorder(),
                         ),
-                        child: Text(_endDate != null ? DateFormat.yMMMd().format(_endDate!) : 'Select Date'),
+                        child: Text(
+                          _endDate != null
+                              ? DateFormat.yMMMd().format(_endDate!)
+                              : 'Select Date',
+                        ),
                       ),
                     ),
                   ),

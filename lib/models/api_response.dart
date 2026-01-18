@@ -13,7 +13,10 @@ class ApiResponse<T> {
     this.count,
   });
 
-  factory ApiResponse.fromJson(Map<String, dynamic> json, T Function(Object? json) fromJsonT) {
+  factory ApiResponse.fromJson(
+    Map<String, dynamic> json,
+    T Function(Object? json) fromJsonT,
+  ) {
     return ApiResponse<T>(
       success: json['success'] as bool,
       data: json['data'] != null ? fromJsonT(json['data']) : null,

@@ -62,13 +62,23 @@ class Trip {
       name: json['name'] as String,
       description: json['description'] as String?,
       coverImageUrl: json['coverImageUrl'] as String?,
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
-      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt']) : null,
-      startDate: json['startDate'] != null ? DateTime.tryParse(json['startDate']) : null,
-      endDate: json['endDate'] != null ? DateTime.tryParse(json['endDate']) : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'])
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'])
+          : null,
+      startDate: json['startDate'] != null
+          ? DateTime.tryParse(json['startDate'])
+          : null,
+      endDate: json['endDate'] != null
+          ? DateTime.tryParse(json['endDate'])
+          : null,
       segmentCount: json['segmentCount'] as int?,
-      plans: json['plans'] != null 
-          ? (json['plans'] as List).map((e) => Plan.fromJson(e as Map<String, dynamic>)).toList() 
+      plans: json['plans'] != null
+          ? (json['plans'] as List)
+                .map((e) => Plan.fromJson(e as Map<String, dynamic>))
+                .toList()
           : null,
     );
   }

@@ -24,13 +24,20 @@ class _EditPlanScreenState extends State<EditPlanScreen> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.plan.name);
-    _descriptionController = TextEditingController(text: widget.plan.description);
+    _descriptionController = TextEditingController(
+      text: widget.plan.description,
+    );
     _startDate = widget.plan.startDate;
     _endDate = widget.plan.endDate;
   }
 
-  Future<void> _selectDate(BuildContext context, {required bool isStartDate}) async {
-    final initialDate = isStartDate ? (_startDate ?? DateTime.now()) : (_endDate ?? _startDate ?? DateTime.now());
+  Future<void> _selectDate(
+    BuildContext context, {
+    required bool isStartDate,
+  }) async {
+    final initialDate = isStartDate
+        ? (_startDate ?? DateTime.now())
+        : (_endDate ?? _startDate ?? DateTime.now());
     final newDate = await showDatePicker(
       context: context,
       initialDate: initialDate,
@@ -50,7 +57,9 @@ class _EditPlanScreenState extends State<EditPlanScreen> {
   }
 
   void _updatePlan() async {
-    if (_formKey.currentState!.validate() && _startDate != null && _endDate != null) {
+    if (_formKey.currentState!.validate() &&
+        _startDate != null &&
+        _endDate != null) {
       final updatedPlan = widget.plan.copyWith(
         name: _nameController.text,
         description: _descriptionController.text,
@@ -67,9 +76,7 @@ class _EditPlanScreenState extends State<EditPlanScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Plan'),
-      ),
+      appBar: AppBar(title: const Text('Edit Plan')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -110,7 +117,11 @@ class _EditPlanScreenState extends State<EditPlanScreen> {
                           labelText: 'Start Date',
                           border: OutlineInputBorder(),
                         ),
-                        child: Text(_startDate != null ? DateFormat.yMMMd().format(_startDate!) : 'Select Date'),
+                        child: Text(
+                          _startDate != null
+                              ? DateFormat.yMMMd().format(_startDate!)
+                              : 'Select Date',
+                        ),
                       ),
                     ),
                   ),
@@ -123,7 +134,11 @@ class _EditPlanScreenState extends State<EditPlanScreen> {
                           labelText: 'End Date',
                           border: OutlineInputBorder(),
                         ),
-                        child: Text(_endDate != null ? DateFormat.yMMMd().format(_endDate!) : 'Select Date'),
+                        child: Text(
+                          _endDate != null
+                              ? DateFormat.yMMMd().format(_endDate!)
+                              : 'Select Date',
+                        ),
                       ),
                     ),
                   ),

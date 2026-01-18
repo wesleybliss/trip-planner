@@ -19,9 +19,7 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: const Center(
-        child: Text('Welcome to Trip Planner!'),
-      ),
+      body: const Center(child: Text('Welcome to Trip Planner!')),
     );
   }
 }

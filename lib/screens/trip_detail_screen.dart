@@ -29,9 +29,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
   void _editTrip(Trip trip) async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => EditTripScreen(trip: trip),
-      ),
+      MaterialPageRoute(builder: (context) => EditTripScreen(trip: trip)),
     );
     if (result == true) {
       setState(() {
@@ -43,9 +41,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
   void _addPlan(int tripId) async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => CreatePlanScreen(tripId: tripId),
-      ),
+      MaterialPageRoute(builder: (context) => CreatePlanScreen(tripId: tripId)),
     );
     if (result == true) {
       setState(() {
@@ -57,9 +53,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
   void _navigateToPlanDetail(Plan plan) async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => PlanDetailScreen(plan: plan),
-      ),
+      MaterialPageRoute(builder: (context) => PlanDetailScreen(plan: plan)),
     );
     if (result == true) {
       setState(() {
@@ -96,7 +90,10 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
           ),
           const Divider(),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
             child: Text(
               'Plans',
               style: Theme.of(context).textTheme.headlineSmall,
@@ -119,7 +116,9 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                       final plan = snapshot.data![index];
                       return ListTile(
                         title: Text(plan.name),
-                        subtitle: Text('${DateFormat.yMMMd().format(plan.startDate)} - ${DateFormat.yMMMd().format(plan.endDate)}'),
+                        subtitle: Text(
+                          '${DateFormat.yMMMd().format(plan.startDate)} - ${DateFormat.yMMMd().format(plan.endDate)}',
+                        ),
                         onTap: () => _navigateToPlanDetail(plan),
                       );
                     },
@@ -143,7 +142,8 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
       builder: (context) => AlertDialog(
         title: const Text('Delete Trip?'),
         content: const Text(
-            'Are you sure you want to delete this trip? This action cannot be undone.'),
+          'Are you sure you want to delete this trip? This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),

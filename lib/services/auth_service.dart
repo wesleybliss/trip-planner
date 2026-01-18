@@ -6,20 +6,20 @@ import 'package:trip_planner/utils/logger.dart';
 /// Unified authentication service that works across all platforms using firebase_dart
 class AuthService {
   final log = Logger("AuthService");
-  
+
   fb_dart.FirebaseAuth? _auth;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
-  
+
   /// Stream of auth state changes
   Stream<AuthUser?> get authStateChanges {
     if (_auth != null) {
-      return _auth!.authStateChanges().map((user) => 
-        user != null ? AuthUser.fromDartUser(user) : null
+      return _auth!.authStateChanges().map(
+        (user) => user != null ? AuthUser.fromDartUser(user) : null,
       );
     }
     return Stream.value(null);
   }
-  
+
   /// Current authenticated user
   AuthUser? get currentUser {
     if (_auth != null) {
@@ -28,12 +28,12 @@ class AuthService {
     }
     return null;
   }
-  
+
   /// Initialize with firebase_dart auth
   void initWithAuth(fb_dart.FirebaseAuth auth) {
     _auth = auth;
   }
-  
+
   /// Sign in with Google
   Future<AuthUser?> signInWithGoogle() async {
     if (_auth == null) {
@@ -49,7 +49,8 @@ class AuthService {
       }
 
       // Obtain the auth details from the request
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
       // Create a new credential
       final credential = fb_dart.GoogleAuthProvider.credential(
@@ -78,7 +79,7 @@ class AuthService {
       log.e('Error signing out', e);
     }
   }
-  
+
   /// Get ID token for authenticated requests
   Future<String?> getIdToken() async {
     try {
@@ -102,14 +103,14 @@ class AuthUser {
   final String? email;
   final String? displayName;
   final bool emailVerified;
-  
+
   AuthUser({
     required this.uid,
     this.email,
     this.displayName,
     this.emailVerified = false,
   });
-  
+
   factory AuthUser.fromDartUser(fb_dart.User user) {
     return AuthUser(
       uid: user.uid,

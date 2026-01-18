@@ -6,12 +6,12 @@ import 'package:trip_planner/services/auth_service.dart';
 
 abstract class SpotModule {
   static AuthService? _authService;
-  
+
   /// Register AuthService instance (called after Firebase initialization)
   static void registerAuthService(AuthService authService) {
     _authService = authService;
   }
-  
+
   static void registerDependencies() {
     Spot.init((factory, single) {
       // Networking
@@ -20,7 +20,7 @@ abstract class SpotModule {
 
       // DAOs
       // single<AUserDao, AUserDao>((get) => UserDao());
-      
+
       // Repositories
       // factory<IExampleRepo, ExampleRepo>((get) => ExampleRepo());
 
@@ -35,8 +35,6 @@ abstract class SpotModule {
 
 abstract class TestSpotModule extends SpotModule {
   static void registerDependencies() {
-    Spot.init((factory, single) {
-
-    });
+    Spot.init((factory, single) {});
   }
 }

@@ -55,12 +55,16 @@ class Plan {
       description: json['description'] as String?,
       startDate: DateTime.parse(json['startDate']),
       endDate: DateTime.parse(json['endDate']),
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
-      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt']) : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'])
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'])
+          : null,
       segments: json['segments'] != null
           ? (json['segments'] as List)
-              .map((e) => Segment.fromJson(e as Map<String, dynamic>))
-              .toList()
+                .map((e) => Segment.fromJson(e as Map<String, dynamic>))
+                .toList()
           : null,
     );
   }

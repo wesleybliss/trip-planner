@@ -38,9 +38,9 @@ class EditTripScreenState extends State<EditTripScreen> {
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to update trip: $e')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Failed to update trip: $e')));
         }
       }
     }
@@ -49,9 +49,7 @@ class EditTripScreenState extends State<EditTripScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Trip'),
-      ),
+      appBar: AppBar(title: const Text('Edit Trip')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

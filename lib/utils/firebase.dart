@@ -9,21 +9,21 @@ import '../firebase_options.dart';
 /// Returns the initialized AuthService instance
 Future<AuthService> initializeFirebase() async {
   final log = Logger('utils/firebase');
-  
+
   log.d('[Firebase] Starting initialization with firebase_dart...');
   log.d('[Firebase] kDebugMode = $kDebugMode');
   log.d('[Firebase] kReleaseMode = $kReleaseMode');
-  
+
   // Initialize AuthService
   final authService = AuthService();
-  
+
   // Setup firebase_dart implementation
   fb_dart.FirebaseDart.setup();
   log.d('[Firebase] FirebaseDart implementation setup complete');
-  
+
   // Get the appropriate platform options
   final options = DefaultFirebaseOptions.currentPlatform;
-  
+
   // Initialize firebase_dart
   final app = await fb_dart.Firebase.initializeApp(
     options: fb_dart.FirebaseOptions(
@@ -36,14 +36,14 @@ Future<AuthService> initializeFirebase() async {
     ),
   );
   log.d('[Firebase] firebase_dart app initialized');
-  
+
   // Get auth instance from the initialized app
   final auth = fb_dart.FirebaseAuth.instanceFor(app: app);
-  
+
   // Initialize auth service with firebase_dart
   authService.initWithAuth(auth);
   log.d('[Firebase] firebase_dart initialized successfully');
-  
+
   log.d('[Firebase] Initialization complete!');
   return authService;
 }

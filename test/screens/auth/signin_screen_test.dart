@@ -35,7 +35,7 @@ void main() {
         single<AuthService, AuthService>((get) => mockAuthService);
       });
     }
-    
+
     // Reset state for each test
     mockAuthService.signInCalled = false;
     mockAuthService.mockUser = null;
@@ -43,12 +43,12 @@ void main() {
   });
 
   Widget createWidgetUnderTest() {
-    return const MaterialApp(
-      home: SignInScreen(),
-    );
+    return const MaterialApp(home: SignInScreen());
   }
 
-  testWidgets('SignInScreen shows Google Sign In button', (WidgetTester tester) async {
+  testWidgets('SignInScreen shows Google Sign In button', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(createWidgetUnderTest());
     await tester.pumpAndSettle();
 
@@ -56,26 +56,32 @@ void main() {
     expect(find.text('Sign In with Google'), findsOneWidget);
   });
 
-  testWidgets('Tapping Sign In calls AuthService.signInWithGoogle', (WidgetTester tester) async {
+  testWidgets('Tapping Sign In calls AuthService.signInWithGoogle', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(createWidgetUnderTest());
     await tester.pumpAndSettle();
 
     await tester.tap(find.byIcon(Icons.login));
-    await tester.pump(); 
+    await tester.pump();
 
     expect(mockAuthService.signInCalled, isTrue);
   });
 
-  testWidgets('Successful sign in navigates to Home', (WidgetTester tester) async {
+  testWidgets('Successful sign in navigates to Home', (
+    WidgetTester tester,
+  ) async {
     mockAuthService.mockUser = AuthUser(uid: '123', email: 'test@example.com');
-    
-    await tester.pumpWidget(MaterialApp(
-      routes: {
-        Routes.home: (context) => const Scaffold(body: Text('Home Screen')),
-        '/login': (context) => const SignInScreen(),
-      },
-      initialRoute: '/login',
-    ));
+
+    await tester.pumpWidget(
+      MaterialApp(
+        routes: {
+          Routes.home: (context) => const Scaffold(body: Text('Home Screen')),
+          '/login': (context) => const SignInScreen(),
+        },
+        initialRoute: '/login',
+      ),
+    );
     await tester.pumpAndSettle();
 
     await tester.tap(find.byIcon(Icons.login));
@@ -91,7 +97,7 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.tap(find.byIcon(Icons.login));
-    
+
     await tester.pump();
     await tester.pumpAndSettle();
 

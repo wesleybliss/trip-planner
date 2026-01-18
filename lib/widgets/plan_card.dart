@@ -13,9 +13,7 @@ class PlanCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       elevation: 5,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
       child: InkWell(
         borderRadius: BorderRadius.circular(15.0),
         onTap: onTap,
@@ -26,9 +24,9 @@ class PlanCard extends StatelessWidget {
             children: [
               Text(
                 plan.name,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8.0),
               Text(

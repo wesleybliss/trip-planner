@@ -31,9 +31,9 @@ class _SignInScreenState extends State<SignInScreen> {
         Navigator.of(context).pushReplacementNamed(Routes.home);
       } else {
         log.d("Sign in cancelled by user");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Sign in cancelled")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Sign in cancelled")));
       }
     } catch (e) {
       log.e("Sign in failed", e);
@@ -43,7 +43,6 @@ class _SignInScreenState extends State<SignInScreen> {
         );
       }
     } finally {
-
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -55,9 +54,7 @@ class _SignInScreenState extends State<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sign In'),
-      ),
+      appBar: AppBar(title: const Text('Sign In')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(

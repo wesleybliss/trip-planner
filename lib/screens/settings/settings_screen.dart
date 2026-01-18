@@ -13,8 +13,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text("TODO")
-    );
+    return Center(child: Text("TODO"));
   }
 }

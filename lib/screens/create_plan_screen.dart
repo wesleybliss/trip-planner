@@ -20,8 +20,13 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
   DateTime? _endDate;
   final ApiService _apiService = ApiService();
 
-  Future<void> _selectDate(BuildContext context, {required bool isStartDate}) async {
-    final initialDate = isStartDate ? (_startDate ?? DateTime.now()) : (_endDate ?? _startDate ?? DateTime.now());
+  Future<void> _selectDate(
+    BuildContext context, {
+    required bool isStartDate,
+  }) async {
+    final initialDate = isStartDate
+        ? (_startDate ?? DateTime.now())
+        : (_endDate ?? _startDate ?? DateTime.now());
     final newDate = await showDatePicker(
       context: context,
       initialDate: initialDate,
@@ -41,7 +46,9 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
   }
 
   void _createPlan() async {
-    if (_formKey.currentState!.validate() && _startDate != null && _endDate != null) {
+    if (_formKey.currentState!.validate() &&
+        _startDate != null &&
+        _endDate != null) {
       final newPlan = Plan(
         id: 0,
         tripId: widget.tripId,
@@ -60,9 +67,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Create New Plan'),
-      ),
+      appBar: AppBar(title: const Text('Create New Plan')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -103,7 +108,11 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                           labelText: 'Start Date',
                           border: OutlineInputBorder(),
                         ),
-                        child: Text(_startDate != null ? DateFormat.yMMMd().format(_startDate!) : 'Select Date'),
+                        child: Text(
+                          _startDate != null
+                              ? DateFormat.yMMMd().format(_startDate!)
+                              : 'Select Date',
+                        ),
                       ),
                     ),
                   ),
@@ -116,7 +125,11 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                           labelText: 'End Date',
                           border: OutlineInputBorder(),
                         ),
-                        child: Text(_endDate != null ? DateFormat.yMMMd().format(_endDate!) : 'Select Date'),
+                        child: Text(
+                          _endDate != null
+                              ? DateFormat.yMMMd().format(_endDate!)
+                              : 'Select Date',
+                        ),
                       ),
                     ),
                   ),
