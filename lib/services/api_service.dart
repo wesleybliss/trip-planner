@@ -1,5 +1,6 @@
 import 'dart:developer' as developer;
 import 'package:spot_di/spot_di.dart';
+import 'package:trip_planner/utils/logger.dart';
 import '../domain/io/net/i_dio_client.dart';
 import '../models/trip.dart';
 import '../models/plan.dart';
@@ -9,6 +10,7 @@ import '../models/user.dart';
 import 'auth_service.dart';
 
 class ApiService {
+  final log = Logger("ApiService");
   final IDioClient _dio = spot<IDioClient>();
   final AuthService _auth = spot<AuthService>();
 
@@ -116,6 +118,7 @@ class ApiService {
 
       return list.map((plan) => Plan.fromJson(plan)).toList();
     } catch (e) {
+      log.e('Failed to load plans', e);
       throw Exception('Failed to load plans');
     }
   }
