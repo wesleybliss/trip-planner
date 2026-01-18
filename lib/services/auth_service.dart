@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
+import 'dart:math';
+import 'package:crypto/crypto.dart';
 import 'package:firebase_dart/firebase_dart.dart' as fb_dart;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import 'package:http/http.dart' as http;
@@ -15,7 +18,8 @@ class AuthService {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   // Google OAuth configuration for desktop
-  static const String _googleClientId = '976595109556-4i101is884mu2d16pm5ua7otb0e27287.apps.googleusercontent.com';
+  final String _googleClientId = dotenv.env['GOOGLE_CLIENT_ID'] ?? '';
+  final String _googleClientSecret = dotenv.env['GOOGLE_CLIENT_SECRET'] ?? '';
   static const String _googleRedirectUri = 'http://localhost:8080/auth';
   static const String _googleAuthUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
   static const String _googleTokenUrl = 'https://oauth2.googleapis.com/token';
@@ -93,6 +97,12 @@ class AuthService {
 
   /// Sign in with Google on desktop platforms (Linux/Windows/macOS)
   Future<AuthUser?> _signInWithGoogleDesktop() async {
+    log.d('Signing in with Google Desktop. Client ID: $_googleClientId');
+
+    // Generate PKCE codes
+    final codeVerifier = _generateCodeVerifier();
+    final codeChallenge = _generateCodeChallenge(codeVerifier);
+
     // Build the authorization URL
     final authUrl = Uri.parse(_googleAuthUrl).replace(queryParameters: {
       'client_id': _googleClientId,
@@ -100,12 +110,15 @@ class AuthService {
       'response_type': 'code',
       'scope': 'openid email profile',
       'access_type': 'offline',
+      'code_challenge': codeChallenge,
+      'code_challenge_method': 'S256',
     });
 
     // Launch the browser and get the auth code
     final result = await FlutterWebAuth2.authenticate(
       url: authUrl.toString(),
-      callbackUrlScheme: 'http',
+      callbackUrlScheme: _googleRedirectUri,
+      options: const FlutterWebAuth2Options(useWebview: false),
     );
 
     // Extract the authorization code from the callback URL
@@ -121,8 +134,10 @@ class AuthService {
       body: {
         'code': code,
         'client_id': _googleClientId,
+        'client_secret': _googleClientSecret,
         'redirect_uri': _googleRedirectUri,
         'grant_type': 'authorization_code',
+        'code_verifier': codeVerifier,
       },
     );
 
@@ -148,6 +163,20 @@ class AuthService {
     final userCredential = await _auth!.signInWithCredential(credential);
     final user = userCredential.user;
     return user != null ? AuthUser.fromDartUser(user) : null;
+  }
+
+  /// Generate a random PKCE code verifier
+  String _generateCodeVerifier() {
+    final random = Random.secure();
+    final values = List<int>.generate(32, (i) => random.nextInt(256));
+    return base64Url.encode(values).replaceAll('=', '');
+  }
+
+  /// Generate a PKCE code challenge from the verifier
+  String _generateCodeChallenge(String verifier) {
+    final bytes = utf8.encode(verifier);
+    final digest = sha256.convert(bytes);
+    return base64Url.encode(digest.bytes).replaceAll('=', '');
   }
 
   /// Sign out

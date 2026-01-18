@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:desktop_webview_window/desktop_webview_window.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:trip_planner/app.dart';
 import 'package:trip_planner/config/application.dart';
@@ -14,6 +15,7 @@ void main(List<String> args) async {
     return;
   }
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
 
   // Initialize Firebase, crash logging, etc. and get AuthService
   final authService = await initializeFirebase();
