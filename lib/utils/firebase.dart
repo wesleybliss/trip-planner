@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
 import '../services/auth_service.dart';
 import 'logger.dart';
 import 'package:firebase_dart/firebase_dart.dart' as fb_dart;
@@ -18,8 +19,18 @@ Future<AuthService> initializeFirebase() async {
   final authService = AuthService();
 
   // Setup firebase_dart implementation
-  fb_dart.FirebaseDart.setup();
-  log.d('[Firebase] FirebaseDart implementation setup complete');
+  String? storagePath;
+  if (!kIsWeb) {
+    try {
+      final appDocDir = await getApplicationDocumentsDirectory();
+      storagePath = appDocDir.path;
+    } catch (e) {
+      log.e('[Firebase] Failed to get application documents directory: $e');
+    }
+  }
+
+  fb_dart.FirebaseDart.setup(storagePath: storagePath);
+  log.d('[Firebase] FirebaseDart implementation setup complete with storagePath: $storagePath');
 
   // Get the appropriate platform options
   final options = DefaultFirebaseOptions.currentPlatform;

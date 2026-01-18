@@ -66,7 +66,7 @@ lib/
 - **Security**: Secure storage for authentication tokens and sensitive data
 - **API Integration**: DIO or HTTP client for REST API communications
 - **Error Handling**: Implement proper error handling for network requests and user inputs
-- **Check Your Work**: Always run `dart analyze` after any moderate code change.
+- **Check Your Work**: Always run `dart fix --apply` and/or `dart analyze` after any moderate code change.
 - **No Clobber**: Never remove commented code unless it's very clear you were asked to refactor that specific part. Some things are commented for future use.
 
 Refer to analysis_options.yaml for linting rules (flutter_lints package).

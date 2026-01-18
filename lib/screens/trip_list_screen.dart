@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:trip_planner/widgets/trips_grid.dart';
 import '../models/trip.dart';
 import '../services/api_service.dart';
-import '../widgets/trip_card.dart';
 import 'create_trip_screen.dart';
 import 'trip_detail_screen.dart';
 import 'auth/signin_screen.dart';
@@ -99,7 +99,7 @@ class _TripListScreenState extends State<TripListScreen> {
             );
           } else {
             final trips = snapshot.data!;
-            return GridView.builder(
+            /*return GridView.builder(
               padding: const EdgeInsets.all(8.0),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4,
@@ -115,6 +115,10 @@ class _TripListScreenState extends State<TripListScreen> {
                   onTap: () => _navigateToTripDetail(trip),
                 );
               },
+            );*/
+            return TripsGrid(
+              trips: trips,
+              onTap: _navigateToTripDetail,
             );
           }
         },
