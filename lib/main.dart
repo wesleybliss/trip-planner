@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:desktop_webview_window/desktop_webview_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
@@ -11,9 +10,6 @@ import 'theme/theme_provider.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main(List<String> args) async {
-  if (runWebViewTitleBarWidget(args)) {
-    return;
-  }
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
 

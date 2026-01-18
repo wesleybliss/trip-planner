@@ -99,8 +99,14 @@ class _TripListScreenState extends State<TripListScreen> {
             );
           } else {
             final trips = snapshot.data!;
-            return ListView.builder(
+            return GridView.builder(
               padding: const EdgeInsets.all(8.0),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                crossAxisSpacing: 8.0,
+                mainAxisSpacing: 8.0,
+                childAspectRatio: 0.85,
+              ),
               itemCount: trips.length,
               itemBuilder: (context, index) {
                 final trip = trips[index];
