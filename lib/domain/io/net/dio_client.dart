@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:trip_planner/domain/constants/constants.dart';
 import 'package:trip_planner/domain/io/net/i_dio_client.dart';
 import 'package:trip_planner/utils/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:spot_di/spot_di.dart';
+import 'package:trip_planner/services/auth_service.dart';
 
 class DioClient implements IDioClient {
   
@@ -21,16 +22,17 @@ class DioClient implements IDioClient {
     dio.interceptors.add(LogInterceptor(responseBody: true));
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
-        final user = FirebaseAuth.instance.currentUser;
-        if (user != null) {
-          try {
-            final token = await user.getIdToken();
-            if (token != null) {
-              options.headers['Authorization'] = 'Bearer $token';
-            }
-          } catch (e) {
-            log.e('Failed to get ID token', e);
+        try {
+          // Get AuthService from DI container
+          final authService = spot<AuthService>();
+          
+          // Get ID token from AuthService
+          final token = await authService.getIdToken();
+          if (token != null) {
+            options.headers['Authorization'] = 'Bearer $token';
           }
+        } catch (e) {
+          log.e('Failed to get ID token', e);
         }
         return handler.next(options);
       },

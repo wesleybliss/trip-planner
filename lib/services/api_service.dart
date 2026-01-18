@@ -1,5 +1,4 @@
 import 'dart:developer' as developer;
-import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:spot_di/spot_di.dart';
 import '../domain/io/net/i_dio_client.dart';
 import '../models/trip.dart';
@@ -7,37 +6,11 @@ import '../models/plan.dart';
 import '../models/segment.dart';
 import '../models/place.dart';
 import '../models/user.dart';
+import 'auth_service.dart';
 
 class ApiService {
   final IDioClient _dio = spot<IDioClient>();
-  final fb_auth.FirebaseAuth _auth = fb_auth.FirebaseAuth.instance;
-
-  Future<void> signUp(String name, String email, String password) async {
-    try {
-      final userCredential = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      
-      // Update display name
-      if (userCredential.user != null) {
-        await userCredential.user!.updateDisplayName(name);
-      }
-    } catch (e) {
-      throw Exception('Failed to sign up: $e');
-    }
-  }
-
-  Future<void> signIn(String email, String password) async {
-    try {
-      await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-    } catch (e) {
-      throw Exception('Failed to sign in: $e');
-    }
-  }
+  final AuthService _auth = spot<AuthService>();
 
   Future<void> signOut() async {
     await _auth.signOut();

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:spot_di/spot_di.dart';
+import 'package:trip_planner/config/routing/routes.dart';
+import 'package:trip_planner/services/auth_service.dart';
 import 'package:trip_planner/utils/logger.dart';
-import 'package:trip_planner/utils/utils.dart';
-import '../../services/api_service.dart';
-import '../trip_list_screen.dart';
-import 'signup_screen.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -15,53 +13,41 @@ class SignInScreen extends StatefulWidget {
 
 class _SignInScreenState extends State<SignInScreen> {
   final log = Logger("SignInScreen");
-  final ApiService _apiService = ApiService();
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
   bool _isLoading = false;
-  
-  String getValue(String? value, String debugKey) {
-    if (value == null || value.isEmpty) {
-      return dotenv.env[debugKey] ?? '';
-    }
-    
-    return value;
-  }
-  
-  String get emailValue => getValue(_emailController.text, 'DEBUG_QUICK_SIGNIN_EMAIL');
-  String get passwordValue => getValue(_passwordController.text, 'DEBUG_QUICK_SIGNIN_PASSWORD');
-  
-  void _signIn() async {
-    log.d("_signIn(): email=$emailValue, password=${Utils.mask(passwordValue)}");
-    
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
-      
-      try {
-        await _apiService.signIn(emailValue, passwordValue);
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const TripListScreen()),
-          );
-        }
-      } catch (e) {
-        log.e("_signIn():", e);
-        
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(e.toString())),
-          );
-        }
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
+
+  Future<void> _signInWithGoogle() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final authService = spot<AuthService>();
+      final user = await authService.signInWithGoogle();
+
+      if (!mounted) return;
+
+      if (user != null) {
+        log.d("Sign in successful: ${user.email}");
+        Navigator.of(context).pushReplacementNamed(Routes.home);
+      } else {
+        log.d("Sign in cancelled by user");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Sign in cancelled")),
+        );
+      }
+    } catch (e) {
+      log.e("Sign in failed", e);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Sign in failed: ${e.toString()}")),
+        );
+      }
+    } finally {
+
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }
@@ -74,57 +60,27 @@ class _SignInScreenState extends State<SignInScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
+        child: Center(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  final debugValue = dotenv.env['DEBUG_QUICK_SIGNIN_EMAIL'];
-                  if ((value == null || value.isEmpty) && debugValue?.isEmpty == true) {
-                    return 'Please enter your email';
-                  }
-                  return null;
-                },
+              const Text(
+                "Welcome to Trip Planner",
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 16.0),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-                validator: (value) {
-                  final debugValue = dotenv.env['DEBUG_QUICK_SIGNIN_PASSWORD'];
-                  if ((value == null || value.isEmpty) && debugValue?.isEmpty == true) {
-                    return 'Please enter your password';
-                  }
-                  return null;
-                },
+              const SizedBox(height: 32),
+              const Text(
+                "Please sign in to continue",
+                style: TextStyle(fontSize: 16),
               ),
-              const SizedBox(height: 26.0),
+              const SizedBox(height: 32),
               _isLoading
                   ? const CircularProgressIndicator()
-                  : ElevatedButton(
-                      onPressed: _signIn,
-                      child: const Text('Sign In'),
+                  : ElevatedButton.icon(
+                      onPressed: _signInWithGoogle,
+                      icon: const Icon(Icons.login),
+                      label: const Text('Sign In with Google'),
                     ),
-              const SizedBox(height: 16.0),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const SignUpScreen()),
-                  );
-                },
-                child: const Text('Don\'t have an account? Sign up'),
-              ),
             ],
           ),
         ),

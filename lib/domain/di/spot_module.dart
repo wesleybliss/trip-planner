@@ -2,8 +2,16 @@ import 'package:trip_planner/domain/io/net/dio_client.dart';
 import 'package:trip_planner/domain/io/net/i_dio_client.dart';
 import 'package:dio/dio.dart';
 import 'package:spot_di/spot_di.dart';
+import 'package:trip_planner/services/auth_service.dart';
 
 abstract class SpotModule {
+  static AuthService? _authService;
+  
+  /// Register AuthService instance (called after Firebase initialization)
+  static void registerAuthService(AuthService authService) {
+    _authService = authService;
+  }
+  
   static void registerDependencies() {
     Spot.init((factory, single) {
       // Networking
@@ -20,7 +28,7 @@ abstract class SpotModule {
       // single<IExampleService, ExampleService>((get) => ExampleService(get<IDioClient>()));
 
       // Core Services
-      // factory<IAuthService, AuthService>((get) => AuthService());
+      single<AuthService, AuthService>((get) => _authService!);
     });
   }
 }

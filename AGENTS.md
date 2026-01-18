@@ -13,7 +13,7 @@
 - **Map Integration**: Visual representation of travel routes and destinations using Google Maps
 
 ### 3. Authentication
-- **Multiple Sign-in Options**: Support for email/password, Google Sign-In, and Apple Sign-In
+- **Sign-in Options**: Support for Google Sign-In and Apple Sign-In
 - **Secure Storage**: Use of flutter_secure_storage for sensitive user data
 
 ### 4. Data Persistence

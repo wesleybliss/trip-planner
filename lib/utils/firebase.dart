@@ -1,82 +1,49 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
-
-import '../config/flavor.dart';
+import '../services/auth_service.dart';
 import 'logger.dart';
+import 'package:firebase_dart/firebase_dart.dart' as fb_dart;
+import '../firebase_options.dart';
 
-// Conditional imports - only import Firebase for standard builds
-import 'package:firebase_core/firebase_core.dart' if (dart.library.js) 'firebase_stub.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart' if (dart.library.js) 'firebase_stub.dart';
-import '../firebase_options.dart' if (dart.library.js) 'firebase_stub.dart';
-
-/// Initializes Firebase and Crashlytics with error handling
-Future<void> initializeFirebase() async {
+/// Initializes Firebase using firebase_dart for all platforms
+/// Returns the initialized AuthService instance
+Future<AuthService> initializeFirebase() async {
   final log = Logger('utils/firebase');
   
-  log.d('[Firebase] Starting initialization...');
-  log.d('[Firebase] Build flavor: ${FlavorConfig.flavorName}');
+  log.d('[Firebase] Starting initialization with firebase_dart...');
   log.d('[Firebase] kDebugMode = $kDebugMode');
   log.d('[Firebase] kReleaseMode = $kReleaseMode');
-  log.d('[Firebase] Platform: ${Platform.operatingSystem}');
   
-  // Skip Firebase for FOSS builds
-  if (!FlavorConfig.isFirebaseEnabled) {
-    log.d('[Firebase] FOSS build detected - Firebase features are disabled');
-    log.d('[Firebase] Skipping Firebase initialization');
-    log.d('[Firebase] App will run without Firebase features (Crashlytics, etc.)');
-    return;
-  }
+  // Initialize AuthService
+  final authService = AuthService();
   
-  // Firebase Core doesn't support Linux natively
-  // Skip Firebase initialization on Linux
-  if (!kIsWeb && Platform.isLinux) {
-    log.d('[Firebase] Linux platform detected - Firebase is not supported natively on Linux');
-    log.d('[Firebase] Skipping Firebase initialization');
-    log.d('[Firebase] App will run without Firebase features (Crashlytics, etc.)');
-    return;
-  }
+  // Setup firebase_dart implementation
+  fb_dart.FirebaseDart.setup();
+  log.d('[Firebase] FirebaseDart implementation setup complete');
   
-  // Initialize Firebase first
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+  // Get the appropriate platform options
+  final options = DefaultFirebaseOptions.currentPlatform;
+  
+  // Initialize firebase_dart
+  final app = await fb_dart.Firebase.initializeApp(
+    options: fb_dart.FirebaseOptions(
+      apiKey: options.apiKey,
+      appId: options.appId,
+      messagingSenderId: options.messagingSenderId,
+      projectId: options.projectId,
+      authDomain: options.authDomain,
+      storageBucket: options.storageBucket,
+    ),
   );
-  log.d('[Firebase] Firebase Core initialized successfully');
-
-  // Enable Crashlytics collection
-  // IMPORTANT: Always enabled for testing, change to !kDebugMode for production
-  final crashlyticsEnabled = true; // or !kDebugMode for production
-  await FirebaseCrashlytics.instance
-      .setCrashlyticsCollectionEnabled(crashlyticsEnabled);
-  log.d('[Firebase] Crashlytics collection enabled = $crashlyticsEnabled');
-
-  // Check if Crashlytics is actually enabled
-  final isCrashlyticsCollectionEnabled = 
-      FirebaseCrashlytics.instance.isCrashlyticsCollectionEnabled;
-  log.d('[Firebase] Crashlytics status check = $isCrashlyticsCollectionEnabled');
-
-  // Set custom keys for debugging
-  await FirebaseCrashlytics.instance.setCustomKey('flutter_version', '3.x');
-  await FirebaseCrashlytics.instance.setCustomKey('build_mode', 
-      kDebugMode ? 'debug' : 'release');
-  log.d('[Firebase] Custom keys set');
-
-  // Catch all uncaught async errors (errors outside of Flutter framework)
-  PlatformDispatcher.instance.onError = (error, stack) {
-    log.d('[Firebase] Platform error caught: $error');
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-    return true;
-  };
-
-  // Forward all Flutter framework errors to Crashlytics
-  FlutterError.onError = (FlutterErrorDetails details) {
-    log.d('[Firebase] Flutter error caught: ${details.exception}');
-    // Still show the error in the console during development
-    FlutterError.presentError(details);
-    // Send to Crashlytics
-    FirebaseCrashlytics.instance.recordFlutterError(details);
-  };
+  log.d('[Firebase] firebase_dart app initialized');
   
-  log.d('[Firebase] Error handlers configured');
+  // Get auth instance from the initialized app
+  final auth = fb_dart.FirebaseAuth.instanceFor(app: app);
+  
+  // Initialize auth service with firebase_dart
+  authService.initWithAuth(auth);
+  log.d('[Firebase] firebase_dart initialized successfully');
+  
   log.d('[Firebase] Initialization complete!');
+  return authService;
 }

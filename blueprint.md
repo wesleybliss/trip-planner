@@ -8,8 +8,10 @@ This document outlines the architecture, features, and design of the Trip Planne
 
 ### Authentication
 
-*   **Sign-in/Sign-up:** Users can sign in or sign up using email and password.
-*   **Session Management:** The app maintains user sessions and automatically signs in returning users.
+*   **Firebase Integration:** The application uses `firebase_dart` for a consistent, cross-platform authentication experience across Web, Desktop, and Mobile.
+*   **Google Sign-In:** Users can sign in using their Google accounts. The flow uses the `google_sign_in` package to obtain OAuth credentials, which are then passed to Firebase via `firebase_dart`.
+*   **Session Management:** The app maintains user sessions using Firebase's persistent authentication state.
+*   **Sign-out:** A sign-out feature is available in the main trip list screen, clearing both the Firebase session and Google Sign-In state.
 
 ### Home Screen
 

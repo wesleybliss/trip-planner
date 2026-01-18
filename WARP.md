@@ -80,7 +80,7 @@ Trip (top-level) → Plans (travel itinerary phases) → Segments (specific loca
 - Models support conditional includes (`?withDetails=true`, `?withSegments=true`)
 
 ### Authentication Flow
-1. Firebase Authentication handles user identity (email/password, Google, Apple)
+1. Firebase Authentication handles user identity (Google, Apple)
 2. On auth state change, `DioClient` interceptor adds Firebase ID token to requests
 3. Backend validates Firebase token and returns/creates corresponding User record
 4. App checks auth via `ApiService.getAuthenticatedUser()` → `/auth/me`

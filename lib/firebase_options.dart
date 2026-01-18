@@ -49,7 +49,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDy3UMPEiPc9d9YMAFZO0e8TqlqE0rl-YM',
-    appId: '1:976595109556:android:0ee17f48d9e23b26c5b9e1',
+    appId: '1:976595109556:android:348e91b693925592c5b9e1',
     messagingSenderId: '976595109556',
     projectId: 'trip-planner-7fe7c',
     storageBucket: 'trip-planner-7fe7c.firebasestorage.app',
@@ -86,13 +86,13 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions linux = FirebaseOptions(
-    apiKey: 'AIzaSyBI6-dz3FnJ_LwSnyD-6yAzYA9-kp2-cbM',
-    appId: '1:1021931476908:web:e5e20933f94c7474ef4c09',
-    messagingSenderId: '1021931476908',
-    projectId: 'trip-planner-TODO',
-    authDomain: 'trip-planner-TODO.firebaseapp.com',
-    storageBucket: 'trip-planner-TODO.firebasestorage.app',
-    measurementId: 'G-SBQRL8HYL0',
+    apiKey: 'AIzaSyDALB6ala7teypK6ZUFE7h7fEJO4E0AvNY',
+    appId: '1:976595109556:web:7b895ffdf5ff903ec5b9e1',
+    messagingSenderId: '976595109556',
+    projectId: 'trip-planner-7fe7c',
+    authDomain: 'trip-planner-7fe7c.firebaseapp.com',
+    storageBucket: 'trip-planner-7fe7c.firebasestorage.app',
+    measurementId: 'G-5JM4Q9QZHT',
   );
 
 }

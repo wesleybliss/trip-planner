@@ -7,12 +7,20 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:976595109556:android:0ee17f48d9e23b26c5b9e1",
+        "mobilesdk_app_id": "1:976595109556:android:348e91b693925592c5b9e1",
         "android_client_info": {
-          "package_name": "com.gammagamma.trip_planner.trip_planner"
+          "package_name": "com.gammagamma.trip_planner"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "976595109556-jlt6i6huq9l9c7e0pognka3ihlssrt4m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gammagamma.trip_planner",
+            "certificate_hash": "24f24e5cfe85b4b389cf528758c2b49c89334aa6"
+          }
+        },
         {
           "client_id": "976595109556-4i101is884mu2d16pm5ua7otb0e27287.apps.googleusercontent.com",
           "client_type": 3
@@ -29,6 +37,57 @@
             {
               "client_id": "976595109556-4i101is884mu2d16pm5ua7otb0e27287.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "976595109556-r0tm2gg9f4intjoujevidsu4mpl0rd2i.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.gammagamma.tripplanner.tripPlanner"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:976595109556:android:e30cdbd96926f08bc5b9e1",
+        "android_client_info": {
+          "package_name": "com.gammagamma.trip_planner.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "976595109556-2nid1vd1ed0p83fh06dv9qnth4nm66vk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gammagamma.trip_planner.debug",
+            "certificate_hash": "24f24e5cfe85b4b389cf528758c2b49c89334aa6"
+          }
+        },
+        {
+          "client_id": "976595109556-4i101is884mu2d16pm5ua7otb0e27287.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDy3UMPEiPc9d9YMAFZO0e8TqlqE0rl-YM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "976595109556-4i101is884mu2d16pm5ua7otb0e27287.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "976595109556-r0tm2gg9f4intjoujevidsu4mpl0rd2i.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.gammagamma.tripplanner.tripPlanner"
+              }
             }
           ]
         }
