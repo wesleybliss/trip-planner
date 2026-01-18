@@ -3,14 +3,13 @@ import 'package:intl/intl.dart';
 import '../models/plan.dart';
 import '../models/segment.dart';
 import '../services/api_service.dart';
-import 'edit_plan_screen.dart';
-import 'create_segment_screen.dart';
-import 'edit_segment_screen.dart';
+import '../services/navigation_service.dart';
 
 class PlanDetailScreen extends StatefulWidget {
-  final Plan plan;
+  final int planId;
+  final Plan? plan; // For backward compatibility
 
-  const PlanDetailScreen({super.key, required this.plan});
+  const PlanDetailScreen({super.key, required this.planId, this.plan});
 
   @override
   State<PlanDetailScreen> createState() => _PlanDetailScreenState();
@@ -23,7 +22,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _planFuture = _apiService.getPlan(widget.plan.id, withSegments: true);
+    _planFuture = _apiService.getPlan(widget.planId, withSegments: true);
   }
 
   int _calculateSchengenDays(Plan plan) {
@@ -36,14 +35,11 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
     return totalDays.toInt();
   }
 
-  void _editPlan(Plan plan) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => EditPlanScreen(plan: plan)),
-    );
+  void _editPlan(BuildContext context, int planId) async {
+    final result = await NavigationService().navigateToEditPlan(context, planId);
     if (result == true) {
       setState(() {
-        _planFuture = _apiService.getPlan(widget.plan.id, withSegments: true);
+        _planFuture = _apiService.getPlan(widget.planId, withSegments: true);
       });
     }
   }
@@ -71,38 +67,29 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
     );
 
     if (confirmed == true) {
-      await _apiService.deletePlan(widget.plan.tripId, planId);
+      // We need the tripId to delete the plan, so we'll get it from the plan data
+      final plan = await _planFuture;
+      await _apiService.deletePlan(plan.tripId, planId);
       if (mounted) {
         Navigator.pop(context, true);
       }
     }
   }
 
-  void _addSegment(int tripId, int planId) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            CreateSegmentScreen(tripId: tripId, planId: planId),
-      ),
-    );
+  void _addSegment(BuildContext context, int planId) async {
+    final result = await NavigationService().navigateToCreateSegment(context, planId);
     if (result == true) {
       setState(() {
-        _planFuture = _apiService.getPlan(planId, withSegments: true);
+        _planFuture = _apiService.getPlan(widget.planId, withSegments: true);
       });
     }
   }
 
-  void _editSegment(Segment segment) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EditSegmentScreen(segment: segment),
-      ),
-    );
+  void _editSegment(BuildContext context, int segmentId) async {
+    final result = await NavigationService().navigateToEditSegment(context, segmentId);
     if (result == true) {
       setState(() {
-        _planFuture = _apiService.getPlan(widget.plan.id, withSegments: true);
+        _planFuture = _apiService.getPlan(widget.planId, withSegments: true);
       });
     }
   }
@@ -133,7 +120,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
       try {
         await _apiService.deleteSegment(segment);
         setState(() {
-          _planFuture = _apiService.getPlan(widget.plan.id, withSegments: true);
+          _planFuture = _apiService.getPlan(widget.planId, withSegments: true);
         });
       } catch (e) {
         if (mounted) {
@@ -183,7 +170,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
               actions: [
                 IconButton(
                   icon: const Icon(Icons.edit),
-                  onPressed: () => _editPlan(plan),
+                  onPressed: () => _editPlan(context, plan.id),
                 ),
                 IconButton(
                   icon: const Icon(Icons.delete),
@@ -221,7 +208,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
               ],
             ),
             floatingActionButton: FloatingActionButton.extended(
-              onPressed: () => _addSegment(plan.tripId, plan.id),
+              onPressed: () => _addSegment(context, plan.id),
               icon: const Icon(Icons.add),
               label: const Text('Add Segment'),
             ),
@@ -289,7 +276,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                     PopupMenuButton<String>(
                       onSelected: (value) {
                         if (value == 'edit') {
-                          _editSegment(segment);
+                          _editSegment(context, segment.id);
                         } else if (value == 'delete') {
                           _deleteSegment(segment);
                         }

@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:trip_planner/widgets/trips_grid.dart';
 import '../models/trip.dart';
 import '../services/api_service.dart';
-import 'create_trip_screen.dart';
-import 'trip_detail_screen.dart';
-import 'auth/signin_screen.dart';
+import '../services/navigation_service.dart';
 
 class TripListScreen extends StatefulWidget {
   const TripListScreen({super.key});
@@ -23,11 +21,8 @@ class _TripListScreenState extends State<TripListScreen> {
     _tripsFuture = _apiService.getTrips();
   }
 
-  void _addTrip() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const CreateTripScreen()),
-    );
+  void _addTrip(BuildContext context) async {
+    final result = await NavigationService().navigateToCreateTrip(context);
     if (result == true) {
       setState(() {
         _tripsFuture = _apiService.getTrips();
@@ -35,11 +30,8 @@ class _TripListScreenState extends State<TripListScreen> {
     }
   }
 
-  void _navigateToTripDetail(Trip trip) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => TripDetailScreen(trip: trip)),
-    );
+  void _navigateToTripDetail(BuildContext context, int tripId) async {
+    final result = await NavigationService().navigateToTripDetail(context, tripId);
     if (result == true) {
       setState(() {
         _tripsFuture = _apiService.getTrips();
@@ -50,11 +42,7 @@ class _TripListScreenState extends State<TripListScreen> {
   void _signOut() async {
     await _apiService.signOut();
     if (mounted) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const SignInScreen()),
-        (route) => false,
-      );
+      NavigationService().navigateToHome(context);
     }
   }
 
@@ -98,33 +86,15 @@ class _TripListScreenState extends State<TripListScreen> {
               ),
             );
           } else {
-            final trips = snapshot.data!;
-            /*return GridView.builder(
-              padding: const EdgeInsets.all(8.0),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                crossAxisSpacing: 8.0,
-                mainAxisSpacing: 8.0,
-                childAspectRatio: 0.85,
-              ),
-              itemCount: trips.length,
-              itemBuilder: (context, index) {
-                final trip = trips[index];
-                return TripCard(
-                  trip: trip,
-                  onTap: () => _navigateToTripDetail(trip),
-                );
-              },
-            );*/
             return TripsGrid(
-              trips: trips,
-              onTap: _navigateToTripDetail,
+              trips: snapshot.data!,
+              onTap: (trip) => _navigateToTripDetail(context, trip.id),
             );
           }
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _addTrip,
+        onPressed: () => _addTrip(context),
         tooltip: 'Add Trip',
         child: const Icon(Icons.add),
       ),

@@ -3,14 +3,13 @@ import 'package:intl/intl.dart';
 import '../models/trip.dart';
 import '../models/plan.dart';
 import '../services/api_service.dart';
-import 'edit_trip_screen.dart';
-import 'create_plan_screen.dart';
-import 'plan_detail_screen.dart';
+import '../services/navigation_service.dart';
 
 class TripDetailScreen extends StatefulWidget {
-  final Trip trip;
+  final int tripId;
+  final Trip? trip; // Optional trip object for backward compatibility
 
-  const TripDetailScreen({super.key, required this.trip});
+  const TripDetailScreen({super.key, required this.tripId, this.trip});
 
   @override
   State<TripDetailScreen> createState() => _TripDetailScreenState();
@@ -18,121 +17,150 @@ class TripDetailScreen extends StatefulWidget {
 
 class _TripDetailScreenState extends State<TripDetailScreen> {
   final ApiService _apiService = ApiService();
+  late Future<Trip> _tripFuture;
   late Future<List<Plan>> _plansFuture;
 
   @override
   void initState() {
     super.initState();
-    _plansFuture = _apiService.getPlans(widget.trip.id);
+    _tripFuture = _apiService.getTrip(widget.tripId);
+    _plansFuture = _apiService.getPlans(widget.tripId);
   }
 
-  void _editTrip(Trip trip) async {
-    final result = await Navigator.push(
+  void _editTrip(BuildContext context, int tripId) async {
+    /*final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => EditTripScreen(trip: trip)),
-    );
+      MaterialPageRoute(builder: (context) => EditTripScreen(tripId: tripId)),
+    );*/
+    final result = await NavigationService().navigateToEditTrip(context, tripId);
     if (result == true) {
       setState(() {
-        // Reload trip details if needed
+        // Reload trip details and plans
+        _tripFuture = _apiService.getTrip(widget.tripId);
+        _plansFuture = _apiService.getPlans(widget.tripId);
       });
     }
   }
 
-  void _addPlan(int tripId) async {
-    final result = await Navigator.push(
+  void _addPlan(BuildContext context, int tripId) async {
+    /*final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => CreatePlanScreen(tripId: tripId)),
-    );
+    );*/
+    final result = await NavigationService().navigateToCreatePlan(context, tripId);
     if (result == true) {
       setState(() {
-        _plansFuture = _apiService.getPlans(widget.trip.id);
+        _plansFuture = _apiService.getPlans(widget.tripId);
       });
     }
   }
 
-  void _navigateToPlanDetail(Plan plan) async {
-    final result = await Navigator.push(
+  void _navigateToPlanDetail(BuildContext context, int planId) async {
+    /*final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => PlanDetailScreen(plan: plan)),
-    );
+      MaterialPageRoute(builder: (context) => PlanDetailScreen(planId: planId)),
+    );*/
+    final result = await NavigationService().navigateToPlanDetail(context, planId);
     if (result == true) {
       setState(() {
-        _plansFuture = _apiService.getPlans(widget.trip.id);
+        _plansFuture = _apiService.getPlans(widget.tripId);
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.trip.name),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () => _editTrip(widget.trip),
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () => _deleteTrip(widget.trip.id),
-          ),
-        ],
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              widget.trip.description ?? 'No description provided.',
-              style: Theme.of(context).textTheme.bodyMedium,
+    return FutureBuilder<Trip>(
+      future: _tripFuture,
+      builder: (context, tripSnapshot) {
+        if (tripSnapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(
+            body: const Center(child: CircularProgressIndicator()),
+          );
+        } else if (tripSnapshot.hasError) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Trip Details')),
+            body: Center(child: Text('Error: ${tripSnapshot.error}')),
+          );
+        } else if (!tripSnapshot.hasData) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Trip Details')),
+            body: const Center(child: Text('No trip data found')),
+          );
+        } else {
+          final trip = tripSnapshot.data!;
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(trip.name),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () => _editTrip(context, trip.id),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () => _deleteTrip(trip.id),
+                ),
+              ],
             ),
-          ),
-          const Divider(),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 8.0,
-            ),
-            child: Text(
-              'Plans',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-          ),
-          Expanded(
-            child: FutureBuilder<List<Plan>>(
-              future: _plansFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No plans yet.'));
-                } else {
-                  return ListView.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      final plan = snapshot.data![index];
-                      return ListTile(
-                        title: Text(plan.name),
-                        subtitle: Text(
-                          '${DateFormat.yMMMd().format(plan.startDate)} - ${DateFormat.yMMMd().format(plan.endDate)}',
-                        ),
-                        onTap: () => _navigateToPlanDetail(plan),
-                      );
+            body: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    trip.description ?? 'No description provided.',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+                const Divider(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
+                  child: Text(
+                    'Plans',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                ),
+                Expanded(
+                  child: FutureBuilder<List<Plan>>(
+                    future: _plansFuture,
+                    builder: (context, plansSnapshot) {
+                      if (plansSnapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (plansSnapshot.hasError) {
+                        return Center(child: Text('Error: ${plansSnapshot.error}'));
+                      } else if (!plansSnapshot.hasData || plansSnapshot.data!.isEmpty) {
+                        return const Center(child: Text('No plans yet.'));
+                      } else {
+                        return ListView.builder(
+                          itemCount: plansSnapshot.data!.length,
+                          itemBuilder: (context, index) {
+                            final plan = plansSnapshot.data![index];
+                            return ListTile(
+                              title: Text(plan.name),
+                              subtitle: Text(
+                                '${DateFormat.yMMMd().format(plan.startDate)} - ${DateFormat.yMMMd().format(plan.endDate)}',
+                              ),
+                              onTap: () => _navigateToPlanDetail(context, plan.id),
+                            );
+                          },
+                        );
+                      }
                     },
-                  );
-                }
-              },
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _addPlan(widget.trip.id),
-        child: const Icon(Icons.add),
-      ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () => _addPlan(context, trip.id),
+              child: const Icon(Icons.add),
+            ),
+          );
+        }
+      },
     );
   }
 
@@ -161,7 +189,8 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
     if (confirmed == true) {
       await _apiService.deleteTrip(tripId);
       if (mounted) {
-        Navigator.pop(context, true);
+        //Navigator.pop(context, true);
+        NavigationService().navigateToTrips(context);
       }
     }
   }

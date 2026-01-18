@@ -1,9 +1,21 @@
 import 'package:trip_planner/domain/constants/constants.dart';
 import 'package:trip_planner/l10n/app_localizations.dart';
 import 'package:trip_planner/screens/error/error_screen.dart';
-import 'package:trip_planner/screens/home/home_screen.dart';
 import 'package:trip_planner/screens/settings/settings_screen.dart';
+import 'package:trip_planner/screens/trip_list_screen.dart';
+import 'package:trip_planner/screens/trip_detail_screen.dart';
+import 'package:trip_planner/screens/create_trip_screen.dart';
+import 'package:trip_planner/screens/edit_trip_screen.dart';
+import 'package:trip_planner/screens/plan_detail_screen.dart';
+import 'package:trip_planner/screens/create_plan_screen.dart';
+import 'package:trip_planner/screens/edit_plan_screen.dart';
+import 'package:trip_planner/screens/create_segment_screen.dart';
+import 'package:trip_planner/screens/edit_segment_screen.dart';
+import 'package:trip_planner/screens/auth/signin_screen.dart';
 import 'package:trip_planner/widgets/toolbar.dart';
+import 'package:trip_planner/utils/route_utils.dart';
+import 'package:trip_planner/services/auth_service.dart';
+import 'package:spot_di/spot_di.dart';
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 
@@ -60,6 +72,18 @@ Handler paramsHandlerFor(
   );
 }
 
+// Helper function to parse int parameters
+int _parseIntParam(Map<String, dynamic> params, String key, [int? defaultValue]) {
+  final param = paramOf<String>(params, key);
+  if (param == null) {
+    if (defaultValue != null) {
+      return defaultValue;
+    }
+    throw Exception('Required parameter $key is missing');
+  }
+  return int.parse(param);
+}
+
 final errorHandler = Handler(
   handlerFunc: (BuildContext? context, Map<String, dynamic> params) {
     if (context == null) {
@@ -90,10 +114,98 @@ final homeHandler = Handler(
     if (context == null) {
       throw Exception("Context is required for localization.");
     }
-    // No Scaffold wrapper - MainScreen provides the shared AppBar
-    return const HomeScreen();
+
+    final authService = spot<AuthService>();
+
+    return StreamBuilder<AuthUser?>(
+      stream: authService.authStateChanges,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        } else if (snapshot.hasData) {
+          return const TripListScreen();
+        } else {
+          return const SignInScreen();
+        }
+      },
+    );
   },
 );
+
+final tripsHandler = handlerFor(
+  const TripListScreen(),
+  (context) => 'My Trips',
+);
+
+final createTripHandler = handlerFor(
+  const CreateTripScreen(),
+  (context) => 'Create Trip',
+);
+
+final tripDetailHandler = paramsHandlerFor(
+  (params) {
+    final tripId = _parseIntParam(params, 'id');
+    // Pass just the ID and let the screen fetch the data
+    return TripDetailScreen(tripId: tripId);
+  },
+  (context) => 'Trip Details',
+);
+
+final editTripHandler = paramsHandlerFor(
+  (params) {
+    final tripId = _parseIntParam(params, 'id');
+    // Pass just the ID and let the screen fetch the data
+    return EditTripScreen(tripId: tripId);
+  },
+  (context) => 'Edit Trip',
+);
+
+final createPlanHandler = paramsHandlerFor(
+  (params) {
+    final tripId = _parseIntParam(params, 'tripId');
+    return CreatePlanScreen(tripId: tripId);
+  },
+  (context) => 'Create Plan',
+);
+
+final planDetailHandler = paramsHandlerFor(
+  (params) {
+    final planId = _parseIntParam(params, 'id');
+    // Pass just the ID and let the screen fetch the data
+    return PlanDetailScreen(planId: planId);
+  },
+  (context) => 'Plan Details',
+);
+
+final editPlanHandler = paramsHandlerFor(
+  (params) {
+    final planId = _parseIntParam(params, 'id');
+    // Pass just the ID and let the screen fetch the data
+    return EditPlanScreen(planId: planId);
+  },
+  (context) => 'Edit Plan',
+);
+
+final createSegmentHandler = paramsHandlerFor(
+  (params) {
+    final planId = _parseIntParam(params, 'planId');
+    // We'll need to pass the planId and let the screen figure out other details
+    return CreateSegmentScreen(planId: planId);
+  },
+  (context) => 'Create Segment',
+);
+
+final editSegmentHandler = paramsHandlerFor(
+  (params) {
+    final segmentId = _parseIntParam(params, 'id');
+    // Pass just the ID and let the screen fetch the data
+    return EditSegmentScreen(segmentId: segmentId);
+  },
+  (context) => 'Edit Segment',
+);
+
 final settingsHandler = handlerFor(
   const SettingsScreen(),
   (context) => AppLocalizations.of(context)!.settings,

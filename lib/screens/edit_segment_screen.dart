@@ -5,9 +5,10 @@ import '../services/api_service.dart';
 import '../models/place.dart';
 
 class EditSegmentScreen extends StatefulWidget {
-  final Segment segment;
+  final int segmentId;
+  final Segment? segment; // For backward compatibility
 
-  const EditSegmentScreen({super.key, required this.segment});
+  const EditSegmentScreen({super.key, required this.segmentId, this.segment});
 
   @override
   State<EditSegmentScreen> createState() => _EditSegmentScreenState();
@@ -15,24 +16,19 @@ class EditSegmentScreen extends StatefulWidget {
 
 class _EditSegmentScreenState extends State<EditSegmentScreen> {
   final _formKey = GlobalKey<FormState>();
+  final ApiService _apiService = ApiService();
+  late Future<Segment> _segmentFuture;
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
   DateTime? _startDate;
   DateTime? _endDate;
   Place? _selectedPlace;
   late Future<List<Place>> _placesFuture;
-  final ApiService _apiService = ApiService();
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.segment.name);
-    _descriptionController = TextEditingController(
-      text: widget.segment.description,
-    );
-    _startDate = widget.segment.startDate;
-    _endDate = widget.segment.endDate;
-    _selectedPlace = widget.segment.place;
+    _segmentFuture = _apiService.getSegment(widget.segmentId);
     _placesFuture = _apiService.getPlaces();
   }
 
@@ -66,7 +62,9 @@ class _EditSegmentScreenState extends State<EditSegmentScreen> {
         _startDate != null &&
         _endDate != null &&
         _selectedPlace != null) {
-      final updatedSegment = widget.segment.copyWith(
+      // First get the current segment data
+      final currentSegment = await _segmentFuture;
+      final updatedSegment = currentSegment.copyWith(
         name: _nameController.text,
         description: _descriptionController.text,
         startDate: _startDate!,
@@ -83,122 +81,168 @@ class _EditSegmentScreenState extends State<EditSegmentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Edit Segment')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Segment Name',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a segment name';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16.0),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 16.0),
-              Row(
-                children: [
-                  Expanded(
-                    child: InkWell(
-                      onTap: () => _selectDate(context, isStartDate: true),
-                      child: InputDecorator(
-                        decoration: const InputDecoration(
-                          labelText: 'Start Date',
-                          border: OutlineInputBorder(),
-                        ),
-                        child: Text(
-                          _startDate != null
-                              ? DateFormat.yMMMd().format(_startDate!)
-                              : 'Select Date',
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16.0),
-                  Expanded(
-                    child: InkWell(
-                      onTap: () => _selectDate(context, isStartDate: false),
-                      child: InputDecorator(
-                        decoration: const InputDecoration(
-                          labelText: 'End Date',
-                          border: OutlineInputBorder(),
-                        ),
-                        child: Text(
-                          _endDate != null
-                              ? DateFormat.yMMMd().format(_endDate!)
-                              : 'Select Date',
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16.0),
-              FutureBuilder<List<Place>>(
-                future: _placesFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return DropdownButtonFormField<Place>(
+    return FutureBuilder<Segment>(
+      future: _segmentFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Edit Segment')),
+            body: const Center(child: CircularProgressIndicator()),
+          );
+        } else if (snapshot.hasError) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Edit Segment')),
+            body: Center(child: Text('Error: ${snapshot.error}')),
+          );
+        } else if (!snapshot.hasData) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Edit Segment')),
+            body: const Center(child: Text('No segment data available')),
+          );
+        } else {
+          final segment = snapshot.data!;
+          // Initialize form fields with segment data
+          _nameController = TextEditingController(text: segment.name);
+          _descriptionController = TextEditingController(
+            text: segment.description,
+          );
+          _startDate = segment.startDate;
+          _endDate = segment.endDate;
+          _selectedPlace = segment.place;
+
+          return Scaffold(
+            appBar: AppBar(title: const Text('Edit Segment')),
+            body: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextFormField(
+                      controller: _nameController,
                       decoration: const InputDecoration(
-                        labelText: 'Place',
+                        labelText: 'Segment Name',
                         border: OutlineInputBorder(),
                       ),
-                      initialValue: _selectedPlace,
-                      items: snapshot.data!.map((place) {
-                        return DropdownMenuItem<Place>(
-                          value: place,
-                          child: Text(place.name),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedPlace = value;
-                        });
-                      },
                       validator: (value) {
-                        if (value == null) {
-                          return 'Please select a place';
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a segment name';
                         }
                         return null;
                       },
-                    );
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else {
-                    return const CircularProgressIndicator();
-                  }
-                },
-              ),
-              const SizedBox(height: 32.0),
-              Center(
-                child: ElevatedButton(
-                  onPressed: _updateSegment,
-                  child: const Text('Update Segment'),
+                    ),
+                    const SizedBox(height: 16.0),
+                    TextFormField(
+                      controller: _descriptionController,
+                      decoration: const InputDecoration(
+                        labelText: 'Description',
+                        border: OutlineInputBorder(),
+                      ),
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: 16.0),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            onTap: () => _selectDate(context, isStartDate: true),
+                            child: InputDecorator(
+                              decoration: const InputDecoration(
+                                labelText: 'Start Date',
+                                border: OutlineInputBorder(),
+                              ),
+                              child: Text(
+                                _startDate != null
+                                    ? DateFormat.yMMMd().format(_startDate!)
+                                    : 'Select Date',
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16.0),
+                        Expanded(
+                          child: InkWell(
+                            onTap: () => _selectDate(context, isStartDate: false),
+                            child: InputDecorator(
+                              decoration: const InputDecoration(
+                                labelText: 'End Date',
+                                border: OutlineInputBorder(),
+                              ),
+                              child: Text(
+                                _endDate != null
+                                    ? DateFormat.yMMMd().format(_endDate!)
+                                    : 'Select Date',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16.0),
+                    FutureBuilder<List<Place>>(
+                      future: _placesFuture,
+                      builder: (context, placesSnapshot) {
+                        if (placesSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        } else if (placesSnapshot.hasError) {
+                          return Text('Error: ${placesSnapshot.error}');
+                        } else if (!placesSnapshot.hasData ||
+                            placesSnapshot.data!.isEmpty) {
+                          return const Text('No places available');
+                        } else {
+                          final places = placesSnapshot.data!;
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Select Place',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 8.0),
+                              DropdownButtonFormField<Place>(
+                                initialValue: _selectedPlace,
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                ),
+                                items: places.map((Place place) {
+                                  return DropdownMenuItem<Place>(
+                                    value: place,
+                                    child: Text(place.name),
+                                  );
+                                }).toList(),
+                                onChanged: (Place? newValue) {
+                                  setState(() {
+                                    _selectedPlace = newValue;
+                                  });
+                                },
+                                validator: (value) => value == null
+                                    ? 'Please select a place'
+                                    : null,
+                              ),
+                            ],
+                          );
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 32.0),
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: _updateSegment,
+                        child: const Text('Update Segment'),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
+          );
+        }
+      },
     );
   }
 

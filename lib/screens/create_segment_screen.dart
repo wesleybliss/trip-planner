@@ -5,12 +5,10 @@ import '../services/api_service.dart';
 import '../models/place.dart';
 
 class CreateSegmentScreen extends StatefulWidget {
-  final int tripId;
   final int planId;
 
   const CreateSegmentScreen({
     super.key,
-    required this.tripId,
     required this.planId,
   });
 
@@ -27,11 +25,18 @@ class _CreateSegmentScreenState extends State<CreateSegmentScreen> {
   Place? _selectedPlace;
   late Future<List<Place>> _placesFuture;
   final ApiService _apiService = ApiService();
+  late Future<int> _tripIdFuture;
 
   @override
   void initState() {
     super.initState();
     _placesFuture = _apiService.getPlaces();
+    _tripIdFuture = _getTripIdFromPlan(widget.planId);
+  }
+
+  Future<int> _getTripIdFromPlan(int planId) async {
+    final plan = await _apiService.getPlan(planId);
+    return plan.tripId;
   }
 
   Future<void> _selectDate(
@@ -64,9 +69,10 @@ class _CreateSegmentScreenState extends State<CreateSegmentScreen> {
         _startDate != null &&
         _endDate != null &&
         _selectedPlace != null) {
+      final tripId = await _tripIdFuture;
       final newSegment = Segment(
         id: 0,
-        tripId: widget.tripId,
+        tripId: tripId,
         planId: widget.planId,
         name: _nameController.text,
         description: _descriptionController.text,

@@ -246,4 +246,13 @@ class ApiService {
       throw Exception('Failed to delete place');
     }
   }
+
+  Future<Segment> getSegment(int segmentId) async {
+    try {
+      final response = await _dio.get('/segments/$segmentId');
+      return Segment.fromJson(response.data);
+    } catch (e) {
+      throw Exception('Failed to load segment');
+    }
+  }
 }
