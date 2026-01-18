@@ -7,7 +7,6 @@ import 'package:trip_planner/config/application.dart';
 import 'package:trip_planner/config/routing/routes.dart';
 import 'package:trip_planner/screens/error/error_screen.dart';
 import 'theme/theme_provider.dart';
-import 'services/api_service.dart';
 import 'services/auth_service.dart';
 import 'screens/auth/signin_screen.dart';
 import 'screens/trip_list_screen.dart';

@@ -1,6 +1,10 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:convert';
 import 'package:firebase_dart/firebase_dart.dart' as fb_dart;
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
+import 'package:http/http.dart' as http;
 import 'package:trip_planner/utils/logger.dart';
 
 /// Unified authentication service that works across all platforms using firebase_dart
@@ -10,11 +14,17 @@ class AuthService {
   fb_dart.FirebaseAuth? _auth;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
+  // Google OAuth configuration for desktop
+  static const String _googleClientId = '976595109556-4i101is884mu2d16pm5ua7otb0e27287.apps.googleusercontent.com';
+  static const String _googleRedirectUri = 'http://localhost:8080/auth';
+  static const String _googleAuthUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
+  static const String _googleTokenUrl = 'https://oauth2.googleapis.com/token';
+
   /// Stream of auth state changes
   Stream<AuthUser?> get authStateChanges {
     if (_auth != null) {
-      return _auth!.authStateChanges().map(
-        (user) => user != null ? AuthUser.fromDartUser(user) : null,
+      return _auth!.authStateChanges().map((user) =>
+        user != null ? AuthUser.fromDartUser(user) : null
       );
     }
     return Stream.value(null);
@@ -34,6 +44,11 @@ class AuthService {
     _auth = auth;
   }
 
+  /// Check if running on desktop platform
+  bool get _isDesktop {
+    return Platform.isLinux || Platform.isWindows || Platform.isMacOS;
+  }
+
   /// Sign in with Google
   Future<AuthUser?> signInWithGoogle() async {
     if (_auth == null) {
@@ -41,31 +56,98 @@ class AuthService {
     }
 
     try {
-      // Trigger the authentication flow
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        // The user canceled the sign-in
-        return null;
+      if (_isDesktop) {
+        return await _signInWithGoogleDesktop();
+      } else {
+        return await _signInWithGoogleMobile();
       }
-
-      // Obtain the auth details from the request
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-
-      // Create a new credential
-      final credential = fb_dart.GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      // Once signed in, return the UserCredential
-      final userCredential = await _auth!.signInWithCredential(credential);
-      final user = userCredential.user;
-      return user != null ? AuthUser.fromDartUser(user) : null;
     } catch (e) {
       log.e('Error signing in with Google', e);
       rethrow;
     }
+  }
+
+  /// Sign in with Google on mobile platforms (Android/iOS)
+  Future<AuthUser?> _signInWithGoogleMobile() async {
+    // Trigger the authentication flow
+    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+    if (googleUser == null) {
+      // The user canceled the sign-in
+      return null;
+    }
+
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+    // Create a new credential
+    final credential = fb_dart.GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    // Once signed in, return the UserCredential
+    final userCredential = await _auth!.signInWithCredential(credential);
+    final user = userCredential.user;
+    return user != null ? AuthUser.fromDartUser(user) : null;
+  }
+
+  /// Sign in with Google on desktop platforms (Linux/Windows/macOS)
+  Future<AuthUser?> _signInWithGoogleDesktop() async {
+    // Build the authorization URL
+    final authUrl = Uri.parse(_googleAuthUrl).replace(queryParameters: {
+      'client_id': _googleClientId,
+      'redirect_uri': _googleRedirectUri,
+      'response_type': 'code',
+      'scope': 'openid email profile',
+      'access_type': 'offline',
+    });
+
+    // Launch the browser and get the auth code
+    final result = await FlutterWebAuth2.authenticate(
+      url: authUrl.toString(),
+      callbackUrlScheme: 'http',
+    );
+
+    // Extract the authorization code from the callback URL
+    final code = Uri.parse(result).queryParameters['code'];
+    if (code == null) {
+      throw Exception('Failed to get authorization code');
+    }
+
+    // Exchange the auth code for tokens
+    final tokenResponse = await http.post(
+      Uri.parse(_googleTokenUrl),
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: {
+        'code': code,
+        'client_id': _googleClientId,
+        'redirect_uri': _googleRedirectUri,
+        'grant_type': 'authorization_code',
+      },
+    );
+
+    if (tokenResponse.statusCode != 200) {
+      throw Exception('Failed to exchange code for tokens: ${tokenResponse.body}');
+    }
+
+    final tokens = json.decode(tokenResponse.body);
+    final accessToken = tokens['access_token'] as String?;
+    final idToken = tokens['id_token'] as String?;
+
+    if (accessToken == null || idToken == null) {
+      throw Exception('Failed to get tokens from response');
+    }
+
+    // Create a new credential with the tokens
+    final credential = fb_dart.GoogleAuthProvider.credential(
+      accessToken: accessToken,
+      idToken: idToken,
+    );
+
+    // Sign in with Firebase
+    final userCredential = await _auth!.signInWithCredential(credential);
+    final user = userCredential.user;
+    return user != null ? AuthUser.fromDartUser(user) : null;
   }
 
   /// Sign out
@@ -74,7 +156,9 @@ class AuthService {
       if (_auth != null) {
         await _auth!.signOut();
       }
-      await _googleSignIn.signOut();
+      if (!_isDesktop) {
+        await _googleSignIn.signOut();
+      }
     } catch (e) {
       log.e('Error signing out', e);
     }

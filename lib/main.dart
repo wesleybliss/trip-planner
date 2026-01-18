@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:desktop_webview_window/desktop_webview_window.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trip_planner/app.dart';
@@ -8,7 +9,10 @@ import 'package:trip_planner/utils/firebase.dart';
 import 'theme/theme_provider.dart';
 import 'package:window_manager/window_manager.dart';
 
-void main() async {
+void main(List<String> args) async {
+  if (runWebViewTitleBarWidget(args)) {
+    return;
+  }
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Firebase, crash logging, etc. and get AuthService
