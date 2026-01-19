@@ -106,14 +106,23 @@ class ApiService {
       final dynamic data = response.data;
       List<dynamic> list;
 
+      // Handle different response formats
       if (data is List) {
+        // Direct list format
         list = data;
-      } else if (data is Map && data.containsKey('plans')) {
-        list = data['plans'];
-      } else if (data is Map && data.containsKey('data')) {
-        list = data['data'];
+      } else if (data is Map<String, dynamic>) {
+        // Check for nested data structure: { "success": true, "data": { "plans": [...] } }
+        if (data.containsKey('data') && data['data'] is Map<String, dynamic> && data['data'].containsKey('plans')) {
+          list = data['data']['plans'] as List<dynamic>;
+        }
+        // Check for direct plans structure: { "plans": [...] }
+        else if (data.containsKey('plans')) {
+          list = data['plans'] as List<dynamic>;
+        } else {
+          throw Exception('Unexpected response format: Missing plans data');
+        }
       } else {
-        throw Exception('Unexpected response format');
+        throw Exception('Unexpected response format: Expected List or Map');
       }
 
       return list.map((plan) => Plan.fromJson(plan)).toList();
