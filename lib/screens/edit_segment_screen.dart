@@ -76,7 +76,7 @@ class _EditSegmentScreenState extends State<EditSegmentScreen> {
         coordsLat: currentSegment.coordsLat,
         coordsLng: currentSegment.coordsLng,
         color: currentSegment.color, // Keep existing color
-        isShengenRegion: _selectedPlace?.isShengenRegion ?? currentSegment.isShengenRegion,
+        isShengenRegion: currentSegment.isShengenRegion,
       );
       await _apiService.updateSegment(updatedSegment);
       if (mounted) {

@@ -84,7 +84,7 @@ class _CreateSegmentScreenState extends State<CreateSegmentScreen> {
         color: 'bg-blue-500', // Default color
         flightBooked: false,
         stayBooked: false,
-        isShengenRegion: _selectedPlace?.isShengenRegion ?? false,
+        isShengenRegion: false,
       );
       await _apiService.createSegment(newSegment);
       if (mounted) {
