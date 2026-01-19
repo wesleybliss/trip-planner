@@ -18,13 +18,11 @@ class TripDetailScreen extends StatefulWidget {
 class _TripDetailScreenState extends State<TripDetailScreen> {
   final ApiService _apiService = ApiService();
   late Future<Trip> _tripFuture;
-  late Future<List<Plan>> _plansFuture;
 
   @override
   void initState() {
     super.initState();
-    _tripFuture = _apiService.getTrip(widget.tripId);
-    _plansFuture = _apiService.getPlans(widget.tripId);
+    _tripFuture = _apiService.getTrip(widget.tripId, withDetails: true);
   }
 
   void _editTrip(BuildContext context, int tripId) async {
@@ -36,8 +34,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
     if (result == true) {
       setState(() {
         // Reload trip details and plans
-        _tripFuture = _apiService.getTrip(widget.tripId);
-        _plansFuture = _apiService.getPlans(widget.tripId);
+        _tripFuture = _apiService.getTrip(widget.tripId, withDetails: true);
       });
     }
   }
@@ -50,7 +47,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
     final result = await NavigationService().navigateToCreatePlan(context, tripId);
     if (result == true) {
       setState(() {
-        _plansFuture = _apiService.getPlans(widget.tripId);
+        _tripFuture = _apiService.getTrip(widget.tripId, withDetails: true);
       });
     }
   }
@@ -63,7 +60,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
     final result = await NavigationService().navigateToPlanDetail(context, planId);
     if (result == true) {
       setState(() {
-        _plansFuture = _apiService.getPlans(widget.tripId);
+        _tripFuture = _apiService.getTrip(widget.tripId, withDetails: true);
       });
     }
   }
@@ -125,24 +122,27 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                   ),
                 ),
                 Expanded(
-                  child: FutureBuilder<List<Plan>>(
-                    future: _plansFuture,
+                  child: FutureBuilder<Trip>(
+                    future: _tripFuture,
                     builder: (context, plansSnapshot) {
-                      if (plansSnapshot.connectionState == ConnectionState.waiting) {
+                      if (tripSnapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
-                      } else if (plansSnapshot.hasError) {
-                        return Center(child: Text('Error: ${plansSnapshot.error}'));
-                      } else if (!plansSnapshot.hasData || plansSnapshot.data!.isEmpty) {
+                      } else if (tripSnapshot.hasError) {
+                        return Center(child: Text('Error: ${tripSnapshot.error}'));
+                      } else if (!tripSnapshot.hasData || tripSnapshot.data?.plans?.isEmpty == true) {
                         return const Center(child: Text('No plans yet.'));
                       } else {
+                        final plans = tripSnapshot.data!.plans!;
                         return ListView.builder(
-                          itemCount: plansSnapshot.data!.length,
+                          itemCount: plans.length,
                           itemBuilder: (context, index) {
-                            final plan = plansSnapshot.data![index];
+                            final plan = plans[index];
                             return ListTile(
                               title: Text(plan.name),
                               subtitle: Text(
-                                '${DateFormat.yMMMd().format(plan.startDate)} - ${DateFormat.yMMMd().format(plan.endDate)}',
+                                (plan.startDate != null && plan.endDate != null)
+                                    ? '${DateFormat.yMMMd().format(plan.startDate!)} - ${DateFormat.yMMMd().format(plan.endDate!)}'
+                                    : 'Dates TBD',
                               ),
                               onTap: () => _navigateToPlanDetail(context, plan.id),
                             );

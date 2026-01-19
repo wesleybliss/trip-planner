@@ -52,7 +52,7 @@ class ApiService {
       }
 
       final trips = list.map((trip) => Trip.fromJson(trip)).toList();
-      developer.log('Fetched trips: $trips', name: 'api_service');
+      // developer.log('Fetched trips: $trips', name: 'api_service');
       return trips;
     } catch (e, s) {
       developer.log(
@@ -67,10 +67,16 @@ class ApiService {
 
   Future<Trip> getTrip(int id, {bool withDetails = false}) async {
     try {
-      final response = await _dio.get('/trips/$id');
+      String url = '/trips/$id';
+      if (withDetails) {
+        url += '?withDetails=true';
+      }
+      
+      final response = await _dio.get(url);
       return Trip.fromJson(response.data);
     } catch (e) {
-      throw Exception('Failed to load trip');
+      log.e("getTrip", e);
+      throw Exception('getTrip: Failed to load trip');
     }
   }
 
@@ -101,31 +107,61 @@ class ApiService {
 
   Future<List<Plan>> getPlans(int tripId) async {
     try {
-      final response = await _dio.get('/trips/$tripId?withDetails=true');
+      final response = await _dio.get('/trips/$tripId');
+      // log.d('getPlans response: $response');
 
       final dynamic data = response.data;
+      // log.d('getPlans data type: ${data.runtimeType}, value: $data');
       List<dynamic> list;
 
       // Handle different response formats
       if (data is List) {
-        // Direct list format
+        log.d('getPlans: Direct list format');
         list = data;
       } else if (data is Map<String, dynamic>) {
+        log.d('getPlans: Map format, keys: ${data.keys}');
         // Check for nested data structure: { "success": true, "data": { "plans": [...] } }
-        if (data.containsKey('data') && data['data'] is Map<String, dynamic> && data['data'].containsKey('plans')) {
-          list = data['data']['plans'] as List<dynamic>;
+        if (data.containsKey('data') && data['data'] is Map<String, dynamic>) {
+          log.d('getPlans: Found data key, data keys: ${data['data'].keys}');
+          if (data['data'].containsKey('plans')) {
+            log.d('getPlans: Found plans in data.data');
+            list = data['data']['plans'] as List<dynamic>;
+          } else {
+            throw Exception('Unexpected response format: data.data missing plans key');
+          }
         }
         // Check for direct plans structure: { "plans": [...] }
         else if (data.containsKey('plans')) {
+          log.d('getPlans: Found direct plans key');
           list = data['plans'] as List<dynamic>;
         } else {
           throw Exception('Unexpected response format: Missing plans data');
         }
       } else {
-        throw Exception('Unexpected response format: Expected List or Map');
+        throw Exception('Unexpected response format: Expected List or Map, got ${data.runtimeType}');
       }
 
-      return list.map((plan) => Plan.fromJson(plan)).toList();
+      log.d('getPlans: Found ${list.length} plans');
+      return list.map((plan) {
+        try {
+          log.d("PLAN: ${plan['name']}");
+          
+          try {
+            for (var seg in plan['segments']) {
+              log.d("SEGMENT: ${seg['name']}");
+              Segment.fromJson(seg);
+            }
+          } catch (x) {
+            log.e('Error parsing segments for plan: ${plan['id']}', x);
+            rethrow;
+          }
+          
+          return Plan.fromJson(plan);
+        } catch (e) {
+          log.e('Error parsing plan for trip: ${plan['id']}', e);
+          rethrow;
+        }
+      }).toList();
     } catch (e) {
       log.e('Failed to load plans', e);
       throw Exception('Failed to load plans');

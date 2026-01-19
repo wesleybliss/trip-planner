@@ -1,10 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:trip_planner/domain/constants/constants.dart';
 import 'package:trip_planner/domain/io/net/i_dio_client.dart';
+import 'package:trip_planner/models/api_response.dart';
 import 'package:trip_planner/utils/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spot_di/spot_di.dart';
 import 'package:trip_planner/services/auth_service.dart';
+
+const _logResponseData = true;
 
 class DioClient implements IDioClient {
   @override
@@ -21,7 +24,11 @@ class DioClient implements IDioClient {
           receiveTimeout: const Duration(seconds: 15),
         ),
       ) {
-    dio.interceptors.add(LogInterceptor(responseBody: true));
+    
+    if (_logResponseData) {
+      dio.interceptors.add(LogInterceptor(responseBody: true));
+    }
+    
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
@@ -44,7 +51,7 @@ class DioClient implements IDioClient {
   }
 
   @override
-  Future<Response> get(String path, {Options? options}) async {
+  Future<ApiResponse> get(String path, {Options? options}) async {
     log.d('GET $path');
 
     final prefs = await SharedPreferences.getInstance();
@@ -72,25 +79,24 @@ class DioClient implements IDioClient {
           '$path${separator}_ts=${DateTime.now().millisecondsSinceEpoch}';
     }
 
-    final res = await dio.get(finalPath, options: requestOptions);
-    return res;
+    return ApiResponse.fromResponse(await dio.get(finalPath, options: requestOptions));
   }
 
   @override
-  Future<Response> post(String path, {dynamic data, Options? options}) async {
+  Future<ApiResponse> post(String path, {dynamic data, Options? options}) async {
     log.d('POST $path');
-    return await dio.post(path, data: data, options: options);
+    return ApiResponse.fromResponse(await dio.post(path, data: data, options: options));
   }
 
   @override
-  Future<Response> put(String path, {dynamic data, Options? options}) async {
+  Future<ApiResponse> put(String path, {dynamic data, Options? options}) async {
     log.d('PUT $path');
-    return await dio.put(path, data: data, options: options);
+    return ApiResponse.fromResponse(await dio.put(path, data: data, options: options));
   }
 
   @override
-  Future<Response> delete(String path, {dynamic data, Options? options}) async {
+  Future<ApiResponse> delete(String path, {dynamic data, Options? options}) async {
     log.d('DELETE $path');
-    return await dio.delete(path, data: data, options: options);
+    return ApiResponse.fromResponse(await dio.delete(path, data: data, options: options));
   }
 }

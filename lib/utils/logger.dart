@@ -3,6 +3,27 @@ import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart';
 
+/*
+TODO
+
+Investigate:
+
+void log(List<dynamic> messages) {
+  final items = messages.map((it) {
+    if (it is Map || it is List) {
+      return const JsonEncoder.withIndent('    ').convert(it);
+    }
+    return it.toString();
+  }).toList();
+  
+  print(items.join(' '));
+}
+
+// Example
+log(['foo', 23, 'bar', {'biz': 'bat'}]); 
+
+*/
+
 enum LogLevel {
   verbose,
   debug,

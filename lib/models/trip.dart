@@ -1,4 +1,11 @@
+import 'package:trip_planner/utils/logger.dart';
+import 'package:trip_planner/utils/utils.dart';
+
 import './plan.dart';
+
+final log = Logger("models/Trip");
+
+T? tc<T>(Map<String, dynamic> json, String key) => tryCatch(json, key, log);
 
 class Trip {
   final int id;
@@ -10,8 +17,8 @@ class Trip {
   final DateTime? updatedAt;
   final DateTime? startDate;
   final DateTime? endDate;
-  final int? segmentCount; // Present if `withCounts=true`
-  final List<Plan>? plans; // Present if `withDetails=true`
+  final int? segmentCount;
+  final List<Plan>? plans;
 
   Trip({
     required this.id,
@@ -57,27 +64,34 @@ class Trip {
 
   factory Trip.fromJson(Map<String, dynamic> json) {
     return Trip(
-      id: json['id'] as int,
-      userId: json['userId'] as int,
-      name: json['name'] as String,
-      description: json['description'] as String?,
-      coverImageUrl: json['coverImageUrl'] as String?,
-      createdAt: json['createdAt'] != null
-          ? DateTime.tryParse(json['createdAt'])
+      id: tc(json, 'id') as int,
+      userId: tc(json, 'userId') as int,
+      name: tc(json, 'name') as String,
+      description: tc(json, 'description') as String?,
+      coverImageUrl: tc(json, 'coverImageUrl') as String?,
+      createdAt: tc(json, 'createdAt') != null
+          ? DateTime.tryParse(tc(json, 'createdAt'))
           : null,
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.tryParse(json['updatedAt'])
+      updatedAt: tc(json, 'updatedAt') != null
+          ? DateTime.tryParse(tc(json, 'updatedAt'))
           : null,
-      startDate: json['startDate'] != null
-          ? DateTime.tryParse(json['startDate'])
+      startDate: tc(json, 'startDate') != null
+          ? DateTime.tryParse(tc(json, 'startDate'))
           : null,
-      endDate: json['endDate'] != null
-          ? DateTime.tryParse(json['endDate'])
+      endDate: tc(json, 'endDate') != null
+          ? DateTime.tryParse(tc(json, 'endDate'))
           : null,
-      segmentCount: json['segmentCount'] as int?,
+      segmentCount: tc(json, 'segmentCount') as int?,
       plans: json['plans'] != null
           ? (json['plans'] as List)
-                .map((e) => Plan.fromJson(e as Map<String, dynamic>))
+                .map((e) {
+                  try {
+                    return Plan.fromJson(e as Map<String, dynamic>);
+                  } catch (e) {
+                    log.e('Error parsing plan for trip: ${json['id']}', e);
+                    rethrow;
+                  }
+      })
                 .toList()
           : null,
     );

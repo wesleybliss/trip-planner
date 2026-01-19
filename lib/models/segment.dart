@@ -1,4 +1,9 @@
-import 'place.dart';
+import 'package:trip_planner/utils/logger.dart';
+import 'package:trip_planner/utils/utils.dart';
+
+final log = Logger("models/Segment");
+
+T? tc<T>(Map<String, dynamic> json, String key) => tryCatch(json, key, log);
 
 class Segment {
   final int id;
@@ -8,7 +13,9 @@ class Segment {
   final String? description;
   final DateTime startDate;
   final DateTime endDate;
-  final Place place;
+  final double? coordsLat;
+  final double? coordsLng;
+  final String color;
   final bool flightBooked;
   final bool stayBooked;
   final bool isShengenRegion;
@@ -23,7 +30,9 @@ class Segment {
     this.description,
     required this.startDate,
     required this.endDate,
-    required this.place,
+    this.coordsLat,
+    this.coordsLng,
+    required this.color,
     required this.flightBooked,
     required this.stayBooked,
     required this.isShengenRegion,
@@ -39,7 +48,9 @@ class Segment {
     String? description,
     DateTime? startDate,
     DateTime? endDate,
-    Place? place,
+    double? coordsLat,
+    double? coordsLng,
+    String? color,
     bool? flightBooked,
     bool? stayBooked,
     bool? isShengenRegion,
@@ -54,7 +65,9 @@ class Segment {
       description: description ?? this.description,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
-      place: place ?? this.place,
+      coordsLat: coordsLat ?? this.coordsLat,
+      coordsLng: coordsLng ?? this.coordsLng,
+      color: color ?? this.color,
       flightBooked: flightBooked ?? this.flightBooked,
       stayBooked: stayBooked ?? this.stayBooked,
       isShengenRegion: isShengenRegion ?? this.isShengenRegion,
@@ -64,24 +77,37 @@ class Segment {
   }
 
   factory Segment.fromJson(Map<String, dynamic> json) {
+    // Handle timestamp dates (milliseconds since epoch)
+    DateTime? parseDate(dynamic dateValue) {
+      if (dateValue == null) {
+        return null;
+      } else if (dateValue is int) {
+        // Timestamp in milliseconds
+        return DateTime.fromMillisecondsSinceEpoch(dateValue);
+      } else if (dateValue is String) {
+        // ISO date string
+        return DateTime.parse(dateValue);
+      } else {
+        throw Exception('Invalid date format: $dateValue');
+      }
+    }
+
     return Segment(
-      id: json['id'] as int,
-      tripId: json['tripId'] as int,
-      planId: json['planId'] as int,
-      name: json['name'] as String,
-      description: json['description'] as String?,
-      startDate: DateTime.parse(json['startDate']),
-      endDate: DateTime.parse(json['endDate']),
-      place: Place.fromJson(json['place'] as Map<String, dynamic>),
-      flightBooked: json['flightBooked'] as bool? ?? false,
-      stayBooked: json['stayBooked'] as bool? ?? false,
-      isShengenRegion: json['isShengenRegion'] as bool? ?? false,
-      createdAt: json['createdAt'] != null
-          ? DateTime.tryParse(json['createdAt'])
-          : null,
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.tryParse(json['updatedAt'])
-          : null,
+      id: tc(json, 'id') as int,
+      tripId: tc(json, 'tripId') as int,
+      planId: tc(json, 'planId') as int,
+      name: tc(json, 'name') as String,
+      description: tc(json, 'description') as String?,
+      startDate: parseDate(tc(json, 'startDate'))!,
+      endDate: parseDate(tc(json, 'endDate'))!,
+      coordsLat: (tc(json, 'coordsLat') as num?)?.toDouble(),
+      coordsLng: (tc(json, 'coordsLng') as num?)?.toDouble(),
+      color: tc(json, 'color') as String,
+      flightBooked: tc(json, 'flightBooked') as bool? ?? false,
+      stayBooked: tc(json, 'stayBooked') as bool? ?? false,
+      isShengenRegion: tc(json, 'isShengenRegion') as bool? ?? false,
+      createdAt: parseDate(tc(json, 'createdAt')),
+      updatedAt: parseDate(tc(json, 'updatedAt')),
     );
   }
 
@@ -94,7 +120,9 @@ class Segment {
       'description': description,
       'startDate': startDate.toIso8601String(),
       'endDate': endDate.toIso8601String(),
-      'place': place.toJson(),
+      'coordsLat': coordsLat,
+      'coordsLng': coordsLng,
+      'color': color,
       'flightBooked': flightBooked,
       'stayBooked': stayBooked,
       'isShengenRegion': isShengenRegion,

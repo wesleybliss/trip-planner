@@ -7,6 +7,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:trip_planner/utils/logger.dart';
 
+T? tryCatch<T>(Map<String, dynamic> json, String key, Logger log) {
+  try {
+    final dynamic value = json[key];
+    // log.d("tryCatch: $key, ${value == null ? "NULL" : value?.toString()}");
+    
+    if (key == "id" && value == null) {
+      final str = JsonEncoder.withIndent('    ').convert(json);
+      log.d("tryCatch: JSON DUMP: $str");
+    }
+    
+    return value as T?;
+  } catch (e) {
+    log.e(e);
+    rethrow;
+  }
+}
+
 void todo(String message) {
   throw Exception('@todo $message');
 }

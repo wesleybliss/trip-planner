@@ -78,10 +78,12 @@ class _CreateSegmentScreenState extends State<CreateSegmentScreen> {
         description: _descriptionController.text,
         startDate: _startDate!,
         endDate: _endDate!,
-        place: _selectedPlace!,
+        coordsLat: 0.0, // TODO: Update when Place model has coordinates
+        coordsLng: 0.0, // TODO: Update when Place model has coordinates
+        color: 'bg-blue-500', // Default color
         flightBooked: false,
         stayBooked: false,
-        isShengenRegion: _selectedPlace!.isShengenRegion,
+        isShengenRegion: _selectedPlace?.isShengenRegion ?? false,
       );
       await _apiService.createSegment(newSegment);
       if (mounted) {

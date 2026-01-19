@@ -69,8 +69,10 @@ class _EditSegmentScreenState extends State<EditSegmentScreen> {
         description: _descriptionController.text,
         startDate: _startDate!,
         endDate: _endDate!,
-        place: _selectedPlace!,
-        isShengenRegion: _selectedPlace!.isShengenRegion,
+        coordsLat: currentSegment.coordsLat,
+        coordsLng: currentSegment.coordsLng,
+        color: currentSegment.color, // Keep existing color
+        isShengenRegion: _selectedPlace?.isShengenRegion ?? currentSegment.isShengenRegion,
       );
       await _apiService.updateSegment(updatedSegment);
       if (mounted) {
@@ -108,7 +110,7 @@ class _EditSegmentScreenState extends State<EditSegmentScreen> {
           );
           _startDate = segment.startDate;
           _endDate = segment.endDate;
-          _selectedPlace = segment.place;
+          // _selectedPlace = segment.place; // Removed since Segment no longer has a place field
 
           return Scaffold(
             appBar: AppBar(title: const Text('Edit Segment')),

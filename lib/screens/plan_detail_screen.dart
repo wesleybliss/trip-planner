@@ -28,7 +28,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
   int _calculateSchengenDays(Plan plan) {
     num totalDays = 0;
     for (var segment in plan.segments ?? []) {
-      if (segment.place.isShengenRegion == true) {
+      if (segment.isShengenRegion == true) {
         totalDays += segment.endDate.difference(segment.startDate).inDays;
       }
     }
@@ -312,7 +312,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                     const Icon(Icons.place, size: 16.0),
                     const SizedBox(width: 8.0),
                     Text(
-                      segment.place.name,
+                      segment.name,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],

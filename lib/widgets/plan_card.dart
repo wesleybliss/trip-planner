@@ -41,7 +41,9 @@ class PlanCard extends StatelessWidget {
                   const Icon(Icons.calendar_today, size: 16.0),
                   const SizedBox(width: 8.0),
                   Text(
-                    '${DateFormat.yMMMd().format(plan.startDate)} - ${DateFormat.yMMMd().format(plan.endDate)}',
+                    (plan.startDate != null && plan.endDate != null)
+                        ? '${DateFormat.yMMMd().format(plan.startDate!)} - ${DateFormat.yMMMd().format(plan.endDate!)}'
+                        : 'Dates TBD',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],

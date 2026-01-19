@@ -54,16 +54,14 @@ class _EditPlanScreenState extends State<EditPlanScreen> {
   }
 
   void _updatePlan() async {
-    if (_formKey.currentState!.validate() &&
-        _startDate != null &&
-        _endDate != null) {
+    if (_formKey.currentState!.validate()) {
       // First get the current plan data
       final currentPlan = await _planFuture;
       final updatedPlan = currentPlan.copyWith(
         name: _nameController.text,
         description: _descriptionController.text,
-        startDate: _startDate!,
-        endDate: _endDate!,
+        startDate: _startDate,
+        endDate: _endDate,
       );
       await _apiService.updatePlan(updatedPlan);
       if (mounted) {
