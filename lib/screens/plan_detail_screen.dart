@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:trip_planner/models/place.dart';
 import 'package:trip_planner/providers/trip_provider.dart';
 import 'package:trip_planner/widgets/segments_list.dart';
 import 'package:trip_planner/widgets/toolbar.dart';
@@ -163,6 +164,9 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final placesAsync = ref.watch(placesProvider);
+    final places = placesAsync.value;
+
     if (widget.tripId != null) {
       final tripAsync = ref.watch(tripDetailsProvider(widget.tripId!));
       return tripAsync.when(
@@ -182,7 +186,7 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
               body: Center(child: Text('Plan not found.')),
             );
           }
-          return _buildScaffold(plan, trip!.id);
+          return _buildScaffold(plan, trip!.id, places);
         },
       );
     }
@@ -215,13 +219,13 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
           );
         } else {
           final plan = snapshot.data!;
-          return _buildScaffold(plan, plan.tripId);
+          return _buildScaffold(plan, plan.tripId, places);
         }
       },
     );
   }
 
-  Widget _buildScaffold(Plan plan, int tripId) {
+  Widget _buildScaffold(Plan plan, int tripId, List<Place>? places) {
     final schengenDays = _calculateSchengenDays(plan);
 
     return Scaffold(
@@ -265,7 +269,13 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
               ),
             ),
           ),
-          SegmentsList(tripId: tripId, segments: plan.segments, editSegment: _editSegment, deleteSegment: _deleteSegment),
+          SegmentsList(
+            tripId: tripId,
+            segments: plan.segments,
+            places: places,
+            editSegment: _editSegment,
+            deleteSegment: _deleteSegment,
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(

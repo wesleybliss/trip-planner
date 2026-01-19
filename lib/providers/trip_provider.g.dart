@@ -6,6 +6,23 @@ part of 'trip_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+String _$placesHash() => r'df9d7ae42a6eacd08b44f3fe8b4bf32791b47b46';
+
+/// See also [places].
+@ProviderFor(places)
+final placesProvider = AutoDisposeFutureProvider<List<Place>>.internal(
+  places,
+  name: r'placesProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$placesHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef PlacesRef = AutoDisposeFutureProviderRef<List<Place>>;
 String _$tripDetailsHash() => r'2ee9fec03f2952b14e903ba7a22a20147542f1df';
 
 /// Copied from Dart SDK
