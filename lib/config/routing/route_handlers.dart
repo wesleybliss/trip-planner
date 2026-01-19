@@ -137,11 +137,13 @@ final homeHandler = Handler(
 final tripsHandler = handlerFor(
   const TripListScreen(),
   (context) => 'My Trips',
+  withScaffold: false,
 );
 
 final createTripHandler = handlerFor(
   const CreateTripScreen(),
   (context) => 'Create Trip',
+  withScaffold: false,
 );
 
 final tripDetailHandler = paramsHandlerFor(
@@ -151,6 +153,7 @@ final tripDetailHandler = paramsHandlerFor(
     return TripDetailScreen(tripId: tripId);
   },
   (context) => 'Trip Details',
+  withScaffold: false,
 );
 
 final editTripHandler = paramsHandlerFor(
@@ -160,6 +163,7 @@ final editTripHandler = paramsHandlerFor(
     return EditTripScreen(tripId: tripId);
   },
   (context) => 'Edit Trip',
+  withScaffold: false,
 );
 
 final createPlanHandler = paramsHandlerFor(
@@ -168,6 +172,7 @@ final createPlanHandler = paramsHandlerFor(
     return CreatePlanScreen(tripId: tripId);
   },
   (context) => 'Create Plan',
+  withScaffold: false,
 );
 
 final planDetailHandler = paramsHandlerFor(
@@ -177,6 +182,7 @@ final planDetailHandler = paramsHandlerFor(
     return PlanDetailScreen(planId: planId);
   },
   (context) => 'Plan Details',
+  withScaffold: false,
 );
 
 final editPlanHandler = paramsHandlerFor(
@@ -186,6 +192,7 @@ final editPlanHandler = paramsHandlerFor(
     return EditPlanScreen(planId: planId);
   },
   (context) => 'Edit Plan',
+  withScaffold: false,
 );
 
 final createSegmentHandler = paramsHandlerFor(
@@ -195,6 +202,7 @@ final createSegmentHandler = paramsHandlerFor(
     return CreateSegmentScreen(planId: planId);
   },
   (context) => 'Create Segment',
+  withScaffold: false,
 );
 
 final editSegmentHandler = paramsHandlerFor(
@@ -204,6 +212,7 @@ final editSegmentHandler = paramsHandlerFor(
     return EditSegmentScreen(segmentId: segmentId);
   },
   (context) => 'Edit Segment',
+  withScaffold: false,
 );
 
 final settingsHandler = handlerFor(

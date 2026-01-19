@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:trip_planner/widgets/toolbar.dart';
 import '../models/plan.dart';
 import '../models/segment.dart';
 import '../services/api_service.dart';
@@ -138,13 +139,13 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
       future: _planFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(
-            appBar: AppBar(),
-            body: const Center(child: CircularProgressIndicator()),
+          return const Scaffold(
+            appBar: Toolbar(title: 'Plan Details'),
+            body: Center(child: CircularProgressIndicator()),
           );
         } else if (snapshot.hasError) {
           return Scaffold(
-            appBar: AppBar(),
+            appBar: const Toolbar(title: 'Plan Details'),
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -156,17 +157,18 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
             ),
           );
         } else if (!snapshot.hasData) {
-          return Scaffold(
-            appBar: AppBar(),
-            body: const Center(child: Text('Plan not found.')),
+          return const Scaffold(
+            appBar: Toolbar(title: 'Plan Details'),
+            body: Center(child: Text('Plan not found.')),
           );
         } else {
           final plan = snapshot.data!;
           final schengenDays = _calculateSchengenDays(plan);
 
           return Scaffold(
-            appBar: AppBar(
-              title: Text(plan.name),
+            appBar: Toolbar(
+              title: plan.name,
+              allowBackNavigation: true,
               actions: [
                 IconButton(
                   icon: const Icon(Icons.edit),

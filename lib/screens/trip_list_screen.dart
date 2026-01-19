@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trip_planner/widgets/toolbar.dart';
 import 'package:trip_planner/widgets/trips_grid.dart';
 import '../models/trip.dart';
 import '../services/api_service.dart';
@@ -49,8 +50,8 @@ class _TripListScreenState extends State<TripListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Trips'),
+      appBar: Toolbar(
+        title: 'My Trips',
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),

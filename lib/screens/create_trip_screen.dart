@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trip_planner/widgets/toolbar.dart';
 import '../models/trip.dart';
 
 class CreateTripScreen extends StatefulWidget {
@@ -16,7 +17,10 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create New Trip')),
+      appBar: const Toolbar(
+        title: 'Create New Trip',
+        allowBackNavigation: true,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

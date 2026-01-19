@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trip_planner/widgets/toolbar.dart';
 import '../models/trip.dart';
 import '../services/api_service.dart';
 
@@ -56,17 +57,17 @@ class EditTripScreenState extends State<EditTripScreen> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Edit Trip')),
+            appBar: Toolbar(title: 'Edit Trip', allowBackNavigation: true),
             body: const Center(child: CircularProgressIndicator()),
           );
         } else if (snapshot.hasError) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Edit Trip')),
+            appBar: const Toolbar(title: 'Edit Trip', allowBackNavigation: true),
             body: Center(child: Text('Error: ${snapshot.error}')),
           );
         } else if (!snapshot.hasData) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Edit Trip')),
+            appBar: const Toolbar(title: 'Edit Trip', allowBackNavigation: true),
             body: const Center(child: Text('No trip data available')),
           );
         } else {
@@ -76,7 +77,7 @@ class EditTripScreenState extends State<EditTripScreen> {
           _description = trip.description ?? '';
 
           return Scaffold(
-            appBar: AppBar(title: const Text('Edit Trip')),
+            appBar: const Toolbar(title: 'Edit Trip', allowBackNavigation: true),
             body: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Form(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:trip_planner/widgets/toolbar.dart';
 import '../models/segment.dart';
 import '../services/api_service.dart';
 import '../models/place.dart';
@@ -24,10 +25,13 @@ class _EditSegmentScreenState extends State<EditSegmentScreen> {
   DateTime? _endDate;
   Place? _selectedPlace;
   late Future<List<Place>> _placesFuture;
+  bool _controllersInitialized = false;
 
   @override
   void initState() {
     super.initState();
+    _nameController = TextEditingController();
+    _descriptionController = TextEditingController();
     _segmentFuture = _apiService.getSegment(widget.segmentId);
     _placesFuture = _apiService.getPlaces();
   }
@@ -87,33 +91,33 @@ class _EditSegmentScreenState extends State<EditSegmentScreen> {
       future: _segmentFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(
-            appBar: AppBar(title: const Text('Edit Segment')),
-            body: const Center(child: CircularProgressIndicator()),
+          return const Scaffold(
+            appBar: Toolbar(title: 'Edit Segment', allowBackNavigation: true),
+            body: Center(child: CircularProgressIndicator()),
           );
         } else if (snapshot.hasError) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Edit Segment')),
+            appBar: const Toolbar(title: 'Edit Segment', allowBackNavigation: true),
             body: Center(child: Text('Error: ${snapshot.error}')),
           );
         } else if (!snapshot.hasData) {
-          return Scaffold(
-            appBar: AppBar(title: const Text('Edit Segment')),
-            body: const Center(child: Text('No segment data available')),
+          return const Scaffold(
+            appBar: Toolbar(title: 'Edit Segment', allowBackNavigation: true),
+            body: Center(child: Text('No segment data available')),
           );
         } else {
           final segment = snapshot.data!;
-          // Initialize form fields with segment data
-          _nameController = TextEditingController(text: segment.name);
-          _descriptionController = TextEditingController(
-            text: segment.description,
-          );
-          _startDate = segment.startDate;
-          _endDate = segment.endDate;
-          // _selectedPlace = segment.place; // Removed since Segment no longer has a place field
+          
+          if (!_controllersInitialized) {
+            _nameController.text = segment.name;
+            _descriptionController.text = segment.description ?? '';
+            _startDate = segment.startDate;
+            _endDate = segment.endDate;
+            _controllersInitialized = true;
+          }
 
           return Scaffold(
-            appBar: AppBar(title: const Text('Edit Segment')),
+            appBar: const Toolbar(title: 'Edit Segment', allowBackNavigation: true),
             body: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Form(

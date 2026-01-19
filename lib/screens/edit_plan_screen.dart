@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:trip_planner/widgets/toolbar.dart';
 import '../models/plan.dart';
 import '../services/api_service.dart';
 
@@ -21,10 +22,13 @@ class _EditPlanScreenState extends State<EditPlanScreen> {
   late TextEditingController _descriptionController;
   DateTime? _startDate;
   DateTime? _endDate;
+  bool _controllersInitialized = false;
 
   @override
   void initState() {
     super.initState();
+    _nameController = TextEditingController();
+    _descriptionController = TextEditingController();
     _planFuture = _apiService.getPlan(widget.planId);
   }
 
@@ -76,32 +80,33 @@ class _EditPlanScreenState extends State<EditPlanScreen> {
       future: _planFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(
-            appBar: AppBar(title: const Text('Edit Plan')),
-            body: const Center(child: CircularProgressIndicator()),
+          return const Scaffold(
+            appBar: Toolbar(title: 'Edit Plan', allowBackNavigation: true),
+            body: Center(child: CircularProgressIndicator()),
           );
         } else if (snapshot.hasError) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Edit Plan')),
+            appBar: const Toolbar(title: 'Edit Plan', allowBackNavigation: true),
             body: Center(child: Text('Error: ${snapshot.error}')),
           );
         } else if (!snapshot.hasData) {
-          return Scaffold(
-            appBar: AppBar(title: const Text('Edit Plan')),
-            body: const Center(child: Text('No plan data available')),
+          return const Scaffold(
+            appBar: Toolbar(title: 'Edit Plan', allowBackNavigation: true),
+            body: Center(child: Text('No plan data available')),
           );
         } else {
           final plan = snapshot.data!;
-          // Initialize form fields with plan data
-          _nameController = TextEditingController(text: plan.name);
-          _descriptionController = TextEditingController(
-            text: plan.description,
-          );
-          _startDate = plan.startDate;
-          _endDate = plan.endDate;
+          
+          if (!_controllersInitialized) {
+            _nameController.text = plan.name;
+            _descriptionController.text = plan.description ?? '';
+            _startDate = plan.startDate;
+            _endDate = plan.endDate;
+            _controllersInitialized = true;
+          }
 
           return Scaffold(
-            appBar: AppBar(title: const Text('Edit Plan')),
+            appBar: const Toolbar(title: 'Edit Plan', allowBackNavigation: true),
             body: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Form(

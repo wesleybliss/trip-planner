@@ -8,28 +8,19 @@ class ApiResponse<T> extends Response<T> {
 
   // Private constructor — no <T> here; class is already generic
   ApiResponse._({
-    T? data,
-    required RequestOptions requestOptions,
-    int? statusCode,
-    String? statusMessage,
-    bool isRedirect = false,
-    List<RedirectRecord> redirects = const [],
-    Map<String, dynamic>? extra,
-    Headers? headers,
+    super.data,
+    required super.requestOptions,
+    super.statusCode,
+    super.statusMessage,
+    super.isRedirect,
+    super.redirects,
+    super.extra,
+    super.headers,
     required this.success,
     this.error,
     this.message,
     this.count,
-  }) : super(
-    data: data,
-    requestOptions: requestOptions,
-    statusCode: statusCode,
-    statusMessage: statusMessage,
-    isRedirect: isRedirect,
-    redirects: redirects,
-    extra: extra,
-    headers: headers,
-  );
+  });
 
   factory ApiResponse.fromResponse(Response<dynamic> response) {
     final rawData = response.data;

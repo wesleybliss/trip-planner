@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:trip_planner/widgets/toolbar.dart';
 import '../models/segment.dart';
 import '../services/api_service.dart';
 import '../models/place.dart';
@@ -95,7 +96,7 @@ class _CreateSegmentScreenState extends State<CreateSegmentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create New Segment')),
+      appBar: const Toolbar(title: 'Create New Segment', allowBackNavigation: true),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

@@ -3,6 +3,7 @@ import 'package:spot_di/spot_di.dart';
 import 'package:trip_planner/config/routing/routes.dart';
 import 'package:trip_planner/services/auth_service.dart';
 import 'package:trip_planner/utils/logger.dart';
+import 'package:trip_planner/widgets/toolbar.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -54,7 +55,7 @@ class _SignInScreenState extends State<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sign In')),
+      appBar: const Toolbar(title: 'Sign In'),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(

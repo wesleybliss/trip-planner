@@ -24,12 +24,28 @@ void main(List<String> args) async {
 
   if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
     await windowManager.ensureInitialized();
-    WindowOptions windowOptions = const WindowOptions(
-      size: Size(600, 800),
-      minimumSize: Size(300, 400),
+
+    // Get screen size to better configure initial window size
+    final screenSize = WidgetsBinding.instance.window.physicalSize;
+    final devicePixelRatio = WidgetsBinding.instance.window.devicePixelRatio;
+
+    final initialWidth = screenSize.width / devicePixelRatio > 800.0
+        ? 800.0
+        : screenSize.width / devicePixelRatio * 0.8;
+
+    final initialHeight = screenSize.height / devicePixelRatio > 1000.0
+        ? 1000.0
+        : screenSize.height / devicePixelRatio * 0.8;
+
+    WindowOptions windowOptions = WindowOptions(
+      size: Size(initialWidth.toDouble(), initialHeight.toDouble()),
+      minimumSize: const Size(400, 500),
+      center: true,
     );
+
     windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();
+      await windowManager.focus();
     });
   }
 

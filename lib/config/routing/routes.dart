@@ -3,6 +3,7 @@ import 'package:trip_planner/domain/constants/constants.dart';
 import 'package:trip_planner/domain/constants/routing.dart';
 import 'package:trip_planner/screens/error/error_screen.dart';
 import 'package:trip_planner/utils/logger.dart';
+import 'package:trip_planner/widgets/toolbar.dart';
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 
@@ -55,7 +56,7 @@ class Routes {
         log.w('ROUTE NOT FOUND: ${context?.settings?.name}');
         final error = Exception('Route not found: ${context?.settings?.name}');
         return Scaffold(
-          appBar: AppBar(title: Text(Constants.strings.appName)),
+          appBar: Toolbar(title: Constants.strings.appName),
           body: ErrorScreen(error: error, stackTrace: null),
         );
       },

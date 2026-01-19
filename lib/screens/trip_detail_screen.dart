@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:trip_planner/widgets/toolbar.dart';
 import '../models/trip.dart';
-import '../models/plan.dart';
 import '../services/api_service.dart';
 import '../services/navigation_service.dart';
 
@@ -71,24 +71,25 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
       future: _tripFuture,
       builder: (context, tripSnapshot) {
         if (tripSnapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(
-            body: const Center(child: CircularProgressIndicator()),
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
           );
         } else if (tripSnapshot.hasError) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Trip Details')),
+            appBar: const Toolbar(title: 'Trip Details'),
             body: Center(child: Text('Error: ${tripSnapshot.error}')),
           );
         } else if (!tripSnapshot.hasData) {
-          return Scaffold(
-            appBar: AppBar(title: const Text('Trip Details')),
-            body: const Center(child: Text('No trip data found')),
+          return const Scaffold(
+            appBar: Toolbar(title: 'Trip Details'),
+            body: Center(child: Text('No trip data found')),
           );
         } else {
           final trip = tripSnapshot.data!;
           return Scaffold(
-            appBar: AppBar(
-              title: Text(trip.name),
+            appBar: Toolbar(
+              title: trip.name,
+              allowBackNavigation: true,
               actions: [
                 IconButton(
                   icon: const Icon(Icons.edit),
