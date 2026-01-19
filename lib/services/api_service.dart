@@ -168,10 +168,10 @@ class ApiService {
     }
   }
 
-  Future<Plan> getPlan(int planId, {bool withSegments = false}) async {
+  Future<Plan> getPlan(int planId) async {
     try {
       final response = await _dio.get(
-        '/plans/$planId?withSegments=$withSegments',
+        '/plans/$planId',
       );
       return Plan.fromJson(response.data);
     } catch (e) {

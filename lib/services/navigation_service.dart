@@ -106,12 +106,22 @@ class NavigationService {
     );
   }
 
-  Future<T?> navigateToPlanDetail<T extends Object?>(BuildContext context, int planId) {
-    return navigateTo(context, app_routes.Routes.planDetail.replaceFirst(':id', planId.toString()));
+  Future<T?> navigateToPlanDetail<T extends Object?>(BuildContext context, int tripId, int planId) {
+    return navigateTo(
+      context,
+      app_routes.Routes.planDetail
+          .replaceFirst(':tripId', tripId.toString())
+          .replaceFirst(':id', planId.toString()),
+    );
   }
 
-  Future<T?> navigateToEditPlan<T extends Object?>(BuildContext context, int planId) {
-    return navigateTo(context, app_routes.Routes.editPlan.replaceFirst(':id', planId.toString()));
+  Future<T?> navigateToEditPlan<T extends Object?>(BuildContext context, int tripId, int planId) {
+    return navigateTo(
+      context,
+      app_routes.Routes.editPlan
+          .replaceFirst(':tripId', tripId.toString())
+          .replaceFirst(':id', planId.toString()),
+    );
   }
 
   Future<T?> navigateToCreateSegment<T extends Object?>(BuildContext context, int planId) {

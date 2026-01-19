@@ -1,29 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:trip_planner/providers/trip_provider.dart';
 import 'package:trip_planner/widgets/toolbar.dart';
 import '../models/plan.dart';
 import '../models/segment.dart';
 import '../services/api_service.dart';
 import '../services/navigation_service.dart';
 
-class PlanDetailScreen extends StatefulWidget {
+class PlanDetailScreen extends ConsumerStatefulWidget {
   final int planId;
+  final int? tripId;
   final Plan? plan; // For backward compatibility
 
-  const PlanDetailScreen({super.key, required this.planId, this.plan});
+  const PlanDetailScreen({super.key, required this.planId, this.tripId, this.plan});
 
   @override
-  State<PlanDetailScreen> createState() => _PlanDetailScreenState();
+  ConsumerState<PlanDetailScreen> createState() => _PlanDetailScreenState();
 }
 
-class _PlanDetailScreenState extends State<PlanDetailScreen> {
+class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
   final ApiService _apiService = ApiService();
   late Future<Plan> _planFuture;
 
   @override
   void initState() {
     super.initState();
-    _planFuture = _apiService.getPlan(widget.planId, withSegments: true);
+    if (widget.tripId == null) {
+      _planFuture = _apiService.getPlan(widget.planId);
+    }
   }
 
   int _calculateSchengenDays(Plan plan) {
@@ -37,15 +42,25 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
   }
 
   void _editPlan(BuildContext context, int planId) async {
-    final result = await NavigationService().navigateToEditPlan(context, planId);
+    int? tid = widget.tripId;
+    if (tid == null) {
+      final plan = await _planFuture;
+      tid = plan.tripId;
+    }
+    
+    final result = await NavigationService().navigateToEditPlan(context, tid, planId);
     if (result == true) {
-      setState(() {
-        _planFuture = _apiService.getPlan(widget.planId, withSegments: true);
-      });
+      if (widget.tripId != null) {
+        ref.read(tripDetailsProvider(widget.tripId!).notifier).refresh();
+      } else {
+        setState(() {
+          _planFuture = _apiService.getPlan(widget.planId);
+        });
+      }
     }
   }
 
-  void _deletePlan(int planId) async {
+  void _deletePlan(int planId, int tripId) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -68,9 +83,10 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
     );
 
     if (confirmed == true) {
-      // We need the tripId to delete the plan, so we'll get it from the plan data
-      final plan = await _planFuture;
-      await _apiService.deletePlan(plan.tripId, planId);
+      await _apiService.deletePlan(tripId, planId);
+      if (widget.tripId != null) {
+        ref.read(tripDetailsProvider(widget.tripId!).notifier).refresh();
+      }
       if (mounted) {
         Navigator.pop(context, true);
       }
@@ -80,22 +96,30 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
   void _addSegment(BuildContext context, int planId) async {
     final result = await NavigationService().navigateToCreateSegment(context, planId);
     if (result == true) {
-      setState(() {
-        _planFuture = _apiService.getPlan(widget.planId, withSegments: true);
-      });
+      if (widget.tripId != null) {
+        ref.read(tripDetailsProvider(widget.tripId!).notifier).refresh();
+      } else {
+        setState(() {
+          _planFuture = _apiService.getPlan(widget.planId);
+        });
+      }
     }
   }
 
   void _editSegment(BuildContext context, int segmentId) async {
     final result = await NavigationService().navigateToEditSegment(context, segmentId);
     if (result == true) {
-      setState(() {
-        _planFuture = _apiService.getPlan(widget.planId, withSegments: true);
-      });
+      if (widget.tripId != null) {
+        ref.read(tripDetailsProvider(widget.tripId!).notifier).refresh();
+      } else {
+        setState(() {
+          _planFuture = _apiService.getPlan(widget.planId);
+        });
+      }
     }
   }
 
-  void _deleteSegment(Segment segment) async {
+  void _deleteSegment(Segment segment, int tripId) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -120,9 +144,13 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
     if (confirmed == true) {
       try {
         await _apiService.deleteSegment(segment);
-        setState(() {
-          _planFuture = _apiService.getPlan(widget.planId, withSegments: true);
-        });
+        if (widget.tripId != null) {
+          ref.read(tripDetailsProvider(widget.tripId!).notifier).refresh();
+        } else {
+          setState(() {
+            _planFuture = _apiService.getPlan(widget.planId);
+          });
+        }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -135,6 +163,30 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.tripId != null) {
+      final tripAsync = ref.watch(tripDetailsProvider(widget.tripId!));
+      return tripAsync.when(
+        loading: () => const Scaffold(
+          appBar: Toolbar(title: 'Plan Details'),
+          body: Center(child: CircularProgressIndicator()),
+        ),
+        error: (error, stack) => Scaffold(
+          appBar: const Toolbar(title: 'Plan Details'),
+          body: Center(child: Text('Error: $error')),
+        ),
+        data: (trip) {
+          final plan = trip?.plans?.where((p) => p.id == widget.planId).firstOrNull;
+          if (plan == null) {
+            return const Scaffold(
+              appBar: Toolbar(title: 'Plan Details'),
+              body: Center(child: Text('Plan not found.')),
+            );
+          }
+          return _buildScaffold(plan, trip!.id);
+        },
+      );
+    }
+
     return FutureBuilder<Plan>(
       future: _planFuture,
       builder: (context, snapshot) {
@@ -163,64 +215,68 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
           );
         } else {
           final plan = snapshot.data!;
-          final schengenDays = _calculateSchengenDays(plan);
-
-          return Scaffold(
-            appBar: Toolbar(
-              title: plan.name,
-              allowBackNavigation: true,
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () => _editPlan(context, plan.id),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () => _deletePlan(plan.id),
-                ),
-              ],
-            ),
-            body: CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      plan.description ?? 'No description provided.',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: SchengenDaysCard(schengenDays: schengenDays),
-                ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 8.0,
-                    ),
-                    child: Text(
-                      'Segments',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                  ),
-                ),
-                _buildSegmentsList(plan),
-              ],
-            ),
-            floatingActionButton: FloatingActionButton.extended(
-              onPressed: () => _addSegment(context, plan.id),
-              icon: const Icon(Icons.add),
-              label: const Text('Add Segment'),
-            ),
-          );
+          return _buildScaffold(plan, plan.tripId);
         }
       },
     );
   }
 
-  Widget _buildSegmentsList(Plan plan) {
+  Widget _buildScaffold(Plan plan, int tripId) {
+    final schengenDays = _calculateSchengenDays(plan);
+
+    return Scaffold(
+      appBar: Toolbar(
+        title: plan.name,
+        allowBackNavigation: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () => _editPlan(context, plan.id),
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: () => _deletePlan(plan.id, tripId),
+          ),
+        ],
+      ),
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                plan.description ?? 'No description provided.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: SchengenDaysCard(schengenDays: schengenDays),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
+              child: Text(
+                'Segments',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+            ),
+          ),
+          _buildSegmentsList(plan, tripId),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _addSegment(context, plan.id),
+        icon: const Icon(Icons.add),
+        label: const Text('Add Segment'),
+      ),
+    );
+  }
+
+  Widget _buildSegmentsList(Plan plan, int tripId) {
     final segments = plan.segments;
     if (segments == null || segments.isEmpty) {
       return SliverToBoxAdapter(
@@ -280,7 +336,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                         if (value == 'edit') {
                           _editSegment(context, segment.id);
                         } else if (value == 'delete') {
-                          _deleteSegment(segment);
+                          _deleteSegment(segment, tripId);
                         }
                       },
                       itemBuilder: (BuildContext context) =>

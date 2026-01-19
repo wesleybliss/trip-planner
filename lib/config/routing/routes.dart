@@ -28,8 +28,8 @@ class Routes {
   static const String tripDetail = '/trips/:id';
   static const String editTrip = '/trips/:id/edit';
   static const String createPlan = '/trips/:tripId/plans/create';
-  static const String planDetail = '/plans/:id';
-  static const String editPlan = '/plans/:id/edit';
+  static const String planDetail = '/trips/:tripId/plans/:id';
+  static const String editPlan = '/trips/:tripId/plans/:id/edit';
   static const String createSegment = '/plans/:planId/segments/create';
   static const String editSegment = '/segments/:id/edit';
 

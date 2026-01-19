@@ -6,9 +6,10 @@ import '../services/api_service.dart';
 
 class EditPlanScreen extends StatefulWidget {
   final int planId;
+  final int? tripId;
   final Plan? plan; // For backward compatibility
 
-  const EditPlanScreen({super.key, required this.planId, this.plan});
+  const EditPlanScreen({super.key, required this.planId, this.tripId, this.plan});
 
   @override
   State<EditPlanScreen> createState() => _EditPlanScreenState();

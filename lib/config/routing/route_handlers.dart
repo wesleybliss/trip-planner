@@ -178,8 +178,8 @@ final createPlanHandler = paramsHandlerFor(
 final planDetailHandler = paramsHandlerFor(
   (params) {
     final planId = _parseIntParam(params, 'id');
-    // Pass just the ID and let the screen fetch the data
-    return PlanDetailScreen(planId: planId);
+    final tripId = _parseIntParam(params, 'tripId');
+    return PlanDetailScreen(planId: planId, tripId: tripId);
   },
   (context) => 'Plan Details',
   withScaffold: false,
@@ -188,8 +188,8 @@ final planDetailHandler = paramsHandlerFor(
 final editPlanHandler = paramsHandlerFor(
   (params) {
     final planId = _parseIntParam(params, 'id');
-    // Pass just the ID and let the screen fetch the data
-    return EditPlanScreen(planId: planId);
+    final tripId = _parseIntParam(params, 'tripId');
+    return EditPlanScreen(planId: planId, tripId: tripId);
   },
   (context) => 'Edit Plan',
   withScaffold: false,

@@ -6,6 +6,7 @@ import 'package:trip_planner/app.dart';
 import 'package:trip_planner/config/application.dart';
 import 'package:trip_planner/domain/di/spot_module.dart';
 import 'package:trip_planner/utils/firebase.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as riverpod;
 import 'theme/theme_provider.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -50,9 +51,11 @@ void main(List<String> args) async {
   }
 
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => ThemeProvider(),
-      child: TripPlannerApp(),
+    riverpod.ProviderScope(
+      child: ChangeNotifierProvider(
+        create: (context) => ThemeProvider(),
+        child: TripPlannerApp(),
+      ),
     ),
   );
 }
