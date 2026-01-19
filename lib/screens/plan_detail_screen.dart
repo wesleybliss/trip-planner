@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:trip_planner/providers/trip_provider.dart';
+import 'package:trip_planner/widgets/segments_list.dart';
 import 'package:trip_planner/widgets/toolbar.dart';
 import '../models/plan.dart';
 import '../models/segment.dart';
@@ -265,7 +265,7 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
               ),
             ),
           ),
-          _buildSegmentsList(plan, tripId),
+          SegmentsList(tripId: tripId, segments: plan.segments, editSegment: _editSegment, deleteSegment: _deleteSegment),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -273,113 +273,6 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
         icon: const Icon(Icons.add),
         label: const Text('Add Segment'),
       ),
-    );
-  }
-
-  Widget _buildSegmentsList(Plan plan, int tripId) {
-    final segments = plan.segments;
-    if (segments == null || segments.isEmpty) {
-      return SliverToBoxAdapter(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 40.0),
-            child: Column(
-              children: [
-                const Icon(
-                  Icons.luggage_outlined,
-                  size: 60,
-                  color: Colors.grey,
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'No segments yet!',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Add your first travel segment to this plan.',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    return SliverList(
-      delegate: SliverChildBuilderDelegate((context, index) {
-        final segment = segments[index];
-        final duration = segment.endDate.difference(segment.startDate).inDays;
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      segment.name,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    PopupMenuButton<String>(
-                      onSelected: (value) {
-                        if (value == 'edit') {
-                          _editSegment(context, segment.id);
-                        } else if (value == 'delete') {
-                          _deleteSegment(segment, tripId);
-                        }
-                      },
-                      itemBuilder: (BuildContext context) =>
-                          <PopupMenuEntry<String>>[
-                            const PopupMenuItem<String>(
-                              value: 'edit',
-                              child: Text('Edit'),
-                            ),
-                            const PopupMenuItem<String>(
-                              value: 'delete',
-                              child: Text('Delete'),
-                            ),
-                          ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8.0),
-                Row(
-                  children: [
-                    const Icon(Icons.calendar_today, size: 16.0),
-                    const SizedBox(width: 8.0),
-                    Text(
-                      '${DateFormat.yMMMd().format(segment.startDate)} - ${DateFormat.yMMMd().format(segment.endDate)} ($duration days)',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8.0),
-                Row(
-                  children: [
-                    const Icon(Icons.place, size: 16.0),
-                    const SizedBox(width: 8.0),
-                    Text(
-                      segment.name,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      }, childCount: segments.length),
     );
   }
 }
