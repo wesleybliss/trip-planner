@@ -18,7 +18,7 @@
           "client_type": 1,
           "android_info": {
             "package_name": "com.gammagamma.trip_planner",
-            "certificate_hash": "24f24e5cfe85b4b389cf528758c2b49c89334aa6"
+            "certificate_hash": "d80f57022f9049700db8ebe4a60fffbe58b07fb4"
           }
         },
         {
@@ -29,6 +29,9 @@
       "api_key": [
         {
           "current_key": "AIzaSyDy3UMPEiPc9d9YMAFZO0e8TqlqE0rl-YM"
+        },
+        {
+          "current_key": "AIzaSyC608U1rnVVBtcwMUBg-t_I-6igbupOpdM"
         }
       ],
       "services": {
@@ -73,6 +76,9 @@
       "api_key": [
         {
           "current_key": "AIzaSyDy3UMPEiPc9d9YMAFZO0e8TqlqE0rl-YM"
+        },
+        {
+          "current_key": "AIzaSyC608U1rnVVBtcwMUBg-t_I-6igbupOpdM"
         }
       ],
       "services": {

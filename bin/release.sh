@@ -15,7 +15,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     
     firebase appdistribution:distribute \
         "$BUILD_TARGET" \
-        --app '1:976595109556:android:e30cdbd96926f08bc5b9e1' \
+        --app '1:976595109556:android:348e91b693925592c5b9e1' \
         --groups 'alpha-testers'
     
 fi
