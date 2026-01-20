@@ -42,12 +42,14 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
     return totalDays.toInt();
   }
 
-  void _editPlan(BuildContext context, int planId) async {
+  void _editPlan(int planId) async {
     int? tid = widget.tripId;
     if (tid == null) {
       final plan = await _planFuture;
       tid = plan.tripId;
     }
+
+    if (!mounted) return;
     
     final result = await NavigationService().navigateToEditPlan(context, tid, planId);
     if (result == true) {
@@ -62,6 +64,7 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
   }
 
   void _deletePlan(int planId, int tripId) async {
+    final navigator = Navigator.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -88,9 +91,8 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
       if (widget.tripId != null) {
         ref.read(tripDetailsProvider(widget.tripId!).notifier).refresh();
       }
-      if (mounted) {
-        Navigator.pop(context, true);
-      }
+      if (!mounted) return;
+      navigator.pop(true);
     }
   }
 
@@ -100,6 +102,7 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
       if (widget.tripId != null) {
         ref.read(tripDetailsProvider(widget.tripId!).notifier).refresh();
       } else {
+        if (!mounted) return;
         setState(() {
           _planFuture = _apiService.getPlan(widget.planId);
         });
@@ -113,6 +116,7 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
       if (widget.tripId != null) {
         ref.read(tripDetailsProvider(widget.tripId!).notifier).refresh();
       } else {
+        if (!mounted) return;
         setState(() {
           _planFuture = _apiService.getPlan(widget.planId);
         });
@@ -121,6 +125,7 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
   }
 
   void _deleteSegment(Segment segment, int tripId) async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -148,16 +153,16 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
         if (widget.tripId != null) {
           ref.read(tripDetailsProvider(widget.tripId!).notifier).refresh();
         } else {
+          if (!mounted) return;
           setState(() {
             _planFuture = _apiService.getPlan(widget.planId);
           });
         }
       } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to delete segment: $e')),
-          );
-        }
+        if (!mounted) return;
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text('Failed to delete segment: $e')),
+        );
       }
     }
   }
@@ -235,7 +240,7 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
-            onPressed: () => _editPlan(context, plan.id),
+            onPressed: () => _editPlan(plan.id),
           ),
           IconButton(
             icon: const Icon(Icons.delete),

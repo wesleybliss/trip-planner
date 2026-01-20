@@ -23,9 +23,9 @@ class ApiService {
       // If we are not signed in to Firebase, return null
       if (_auth.currentUser == null) return null;
 
-      // Call the API's /auth/me endpoint. It should now expect the Firebase ID token
+      // Call the API's /auth/user endpoint. It should now expect the Firebase ID token
       // which is automatically attached by the DioClient interceptor.
-      final response = await _dio.get('/auth/me');
+      final response = await _dio.get('/auth/user');
       return User.fromJson(response.data);
     } catch (e) {
       // If API call fails, it might mean the backend user doesn't exist yet or token is invalid.

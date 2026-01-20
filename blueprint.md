@@ -47,3 +47,23 @@ This document outlines the architecture, features, and design of the Trip Planne
 
 *   **Light and Dark Mode:** The app supports both light and dark modes, with a theme toggle in the app bar.
 *   **Customizable Theme:** The app uses a customizable theme with a primary seed color.
+
+## Plan for Current Change: Fix "Create Trip" Button
+
+### Problem
+The "Create Trip" button in `lib/screens/create_trip_screen.dart` currently only pops the screen with a new `Trip` object without calling the backend API.
+
+### Proposed Solution
+1.  **Integrate `ApiService`:** Instantiate `ApiService` within `_CreateTripScreenState`.
+2.  **Add Loading State:** Implement a `_isLoading` boolean to provide visual feedback and prevent multiple submissions.
+3.  **Fetch Authenticated User:** Before creating the trip, fetch the current authenticated user's details to obtain the correct `userId`.
+4.  **Call `createTrip` API:** Use `apiService.createTrip()` to persist the new trip to the backend.
+5.  **Handle Success/Failure:**
+    *   On success: Pop the screen and return `true` to signal the `TripListScreen` to refresh.
+    *   On failure: Show a `SnackBar` with an error message and allow the user to try again.
+6.  **UI Updates:** Disable the "Create Trip" button while loading and show a `CircularProgressIndicator` if appropriate.
+
+### Steps
+1.  Modify `lib/screens/create_trip_screen.dart` to include `ApiService` and loading state.
+2.  Update the `onPressed` handler for the "Create Trip" button to implement the new logic.
+3.  Verify the fix by creating a new trip in the application.

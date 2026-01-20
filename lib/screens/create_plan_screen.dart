@@ -62,10 +62,10 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                         name: _nameController.text,
                         description: _descriptionController.text,
                       );
+                      final navigator = Navigator.of(context);
                       await _apiService.createPlan(newPlan);
-                      if (mounted) {
-                        Navigator.pop(context, true);
-                      }
+                      if (!mounted) return;
+                      navigator.pop(true);
                     }
                   },
                   child: const Text('Create Plan'),
