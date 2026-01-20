@@ -52,6 +52,7 @@ class DefaultFirebaseOptions {
     appId: '1:976595109556:android:348e91b693925592c5b9e1',
     messagingSenderId: '976595109556',
     projectId: 'trip-planner-7fe7c',
+    authDomain: 'trip-planner-7fe7c.firebaseapp.com',
     storageBucket: 'trip-planner-7fe7c.firebasestorage.app',
   );
 
